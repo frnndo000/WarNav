@@ -15,8 +15,10 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
 	private SpriteBatch batch;	   
 	private BitmapFont font;
-	private Tarro tarro;
+	private Nave nave;
 	private Lluvia lluvia;
+	private Texture misilTexture;
+	private Sound sonidoDisparo;
 
 	   
 	//boolean activo = true;
@@ -27,7 +29,9 @@ public class GameScreen implements Screen {
         this.font = game.getFont();
 		  // load the images for the droplet and the bucket, 64x64 pixels each 	     
 		  Sound hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-		  tarro = new Tarro(new Texture(Gdx.files.internal("bucket.png")),hurtSound);
+	      misilTexture = new Texture(Gdx.files.internal("misil.png"));
+	      sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.mp3"));
+		  nave = new Nave(new Texture(Gdx.files.internal("nave.png")), misilTexture, hurtSound, sonidoDisparo);
          
 	      // load the drop sound effect and the rain background "music" 
          Texture gota = new Texture(Gdx.files.internal("drop.png"));
@@ -37,13 +41,13 @@ public class GameScreen implements Screen {
         
 	     Music rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
          lluvia = new Lluvia(gota, gotaMala, dropSound, rainMusic);
-	      
+
 	      // camera
 	      camera = new OrthographicCamera();
 	      camera.setToOrtho(false, 800, 480);
 	      batch = new SpriteBatch();
 	      // creacion del tarro
-	      tarro.crear();
+	      nave.crear();
 	      
 	      // creacion de la lluvia
 	      lluvia.crear();
@@ -57,27 +61,30 @@ public class GameScreen implements Screen {
 		camera.update();
 		//actualizar 
 		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
-		//dibujar textos
-		font.draw(batch, "Gotas totales: " + tarro.getPuntos(), 5, 475);
-		font.draw(batch, "Vidas : " + tarro.getVidas(), 670, 475);
-		font.draw(batch, "HighScore : " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
 		
-		if (!tarro.estaHerido()) {
+		nave.actualizar(delta);
+		
+		if (!nave.estaHerido()) {
 			// movimiento del tarro desde teclado
-	        tarro.actualizarMovimiento();        
+	        nave.actualizarMovimiento();        
 			// caida de la lluvia 
-	       if (!lluvia.actualizarMovimiento(tarro)) {
+	       if (!lluvia.actualizarMovimiento(nave)) {
 	    	  //actualizar HigherScore
-	    	  if (game.getHigherScore()<tarro.getPuntos())
-	    		  game.setHigherScore(tarro.getPuntos());  
+	    	  if (game.getHigherScore()<nave.getPuntos())
+	    		  game.setHigherScore(nave.getPuntos());  
 	    	  //ir a la ventana de finde juego y destruir la actual
 	    	  game.setScreen(new GameOverScreen(game));
 	    	  dispose();
 	       }
 		}
+		batch.begin();
 		
-		tarro.dibujar(batch);
+		//dibujar textos
+		font.draw(batch, "Gotas totales: " + nave.getPuntos(), 5, 475);
+		font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
+		font.draw(batch, "HighScore : " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
+		
+		nave.dibujar(batch);
 		lluvia.actualizarDibujoLluvia(batch);
 		
 		batch.end();
@@ -111,8 +118,10 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-      tarro.destruir();
+      nave.destruir();
       lluvia.destruir();
+      misilTexture.dispose();
+      sonidoDisparo.dispose();
 
 	}
 

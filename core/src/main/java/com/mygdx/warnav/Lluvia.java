@@ -50,7 +50,7 @@ public class Lluvia {
 	      lastDropTime = TimeUtils.nanoTime();
 	   }
 	
-   public boolean actualizarMovimiento(Tarro tarro) { 
+   public boolean actualizarMovimiento(Nave tarro) { 
 	   // generar gotas de lluvia 
 	   if(TimeUtils.nanoTime() - lastDropTime > 100000000) crearGotaDeLluvia();
 	  
