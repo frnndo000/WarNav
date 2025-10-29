@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
-public abstract class Entidad {
+public abstract class Entidad implements Colisionable {
 	// protected para que las clases hijas puedan acceder a ellas
 	protected Texture texture;
     protected Rectangle bounds;

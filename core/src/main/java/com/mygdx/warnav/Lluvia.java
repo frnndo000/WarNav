@@ -64,7 +64,7 @@ public class Lluvia {
 	    	  rainDropsPos.removeIndex(i); 
 	    	  rainDropsType.removeIndex(i);
 	      }
-	      if(raindrop.overlaps(tarro.getArea())) { //la gota choca con el tarro
+	      if(raindrop.overlaps(tarro.getBounds())) { //la gota choca con el tarro
 	    	if(rainDropsType.get(i)==1) { // gota dañina
 	    	  tarro.dañar();
 	    	  if (tarro.getVidas()<=0)

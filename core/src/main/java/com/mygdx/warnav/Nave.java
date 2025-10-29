@@ -96,10 +96,6 @@ public class Nave extends Entidad {
 		public int getPuntos() {
 			return puntos;
 		}
-
-		public Rectangle getArea() {
-			return bounds;
-		}
 		
 		public void sumarPuntos(int pp) {
 			puntos+=pp;
@@ -113,17 +109,13 @@ public class Nave extends Entidad {
 	   }
 	   
 	   private void disparar() {
-		    // 1. Crea un nuevo misil
 		    Misil misil = new Misil(misilTexture);
 
-		    // 2. Calcula dónde debe aparecer (centrado, arriba de la nave)
 		    float misilX = this.bounds.x + this.bounds.width / 2 - misil.getBounds().width / 2;
 		    float misilY = this.bounds.y + this.bounds.height;
 
-		    // 3. Posiciona el misil
 		    misil.crear(misilX, misilY);
 
-		    // 4. Añádelo a la lista y reproduce el sonido
 		    misiles.add(misil);
 		    sonidoDisparo.play();
 		}
