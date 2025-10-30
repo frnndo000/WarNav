@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
 	private Texture soldadoTexture;
 	private Texture enemigoTexture;
 	
-	// <-- CAMBIO 1: Declarar la textura de la nave aquí
+	// Declarar la textura de la nave aquí
 	private Texture naveTexture; 
 
 	private Sound sonidoDisparo;
