@@ -6,101 +6,118 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
+// Nota: Ya no necesitamos 'Rectangle', 'Lluvia' solo manejará Entidades.
+
 public class Lluvia {
-	private Array<Rectangle> rainDropsPos;
-	private Array<Integer> rainDropsType;
+    
+    // 1. Nuevas variables
+    private Array<Entidad> entidades; // Una sola lista para Soldados y Enemigos
     private long lastDropTime;
-    private Texture gotaBuena;
-    private Texture gotaMala;
-    private Sound dropSound;
-    private Music rainMusic;
+    private Texture soldadoTexture; // Textura para Soldados
+    private Texture enemigoTexture; // Textura para Enemigos
+    private Sound dropSound; // Sonido al rescatar soldado
+    private Music rainMusic; // Música de fondo
 	   
-	public Lluvia(Texture gotaBuena, Texture gotaMala, Sound ss, Music mm) {
-		rainMusic = mm;
-		dropSound = ss;
-		this.gotaBuena = gotaBuena;
-		this.gotaMala = gotaMala;
-	}
+    // 2. Constructor actualizado
+    public Lluvia(Texture soldadoTexture, Texture enemigoTexture, Sound ss, Music mm) {
+        this.rainMusic = mm;
+        this.dropSound = ss;
+        this.soldadoTexture = soldadoTexture;
+        this.enemigoTexture = enemigoTexture;
+    }
 	
-	public void crear() {
-		rainDropsPos = new Array<Rectangle>();
-		rainDropsType = new Array<Integer>();
-		crearGotaDeLluvia();
-	      // start the playback of the background music immediately
-	      rainMusic.setLooping(true);
-	      rainMusic.play();
-	}
+    public void crear() {
+        entidades = new Array<Entidad>(); // Inicializa la lista
+        spawnEntidad(); // Crea la primera entidad
+        
+        rainMusic.setLooping(true);
+        rainMusic.play();
+    }
 	
-	private void crearGotaDeLluvia() {
-	      Rectangle raindrop = new Rectangle();
-	      raindrop.x = MathUtils.random(0, 800-64);
-	      raindrop.y = 480;
-	      raindrop.width = 64;
-	      raindrop.height = 64;
-	      rainDropsPos.add(raindrop);
-	      // ver el tipo de gota
-	      if (MathUtils.random(1,10)<5)	    	  
-	         rainDropsType.add(1);
-	      else 
-	    	 rainDropsType.add(2);
-	      lastDropTime = TimeUtils.nanoTime();
-	   }
+    // 3. Método de spawn actualizado (antes 'crearGotaDeLluvia')
+    private void spawnEntidad() {
+        Entidad nuevaEntidad;
+        
+        // Decide aleatoriamente si crear un Enemigo o un Soldado
+        if (MathUtils.random(1, 10) < 5) {	    	  
+            nuevaEntidad = new Enemigo(enemigoTexture);
+        } else {
+            nuevaEntidad = new Soldado(soldadoTexture);
+        }
+        
+        // Posición inicial (arriba, aleatorio en X)
+        nuevaEntidad.getBounds().x = MathUtils.random(0, 800 - nuevaEntidad.getBounds().width);
+        nuevaEntidad.getBounds().y = 480; // Alto de la pantalla
+        
+        entidades.add(nuevaEntidad);
+        lastDropTime = TimeUtils.nanoTime();
+    }
 	
-   public boolean actualizarMovimiento(Nave tarro) { 
-	   // generar gotas de lluvia 
-	   if(TimeUtils.nanoTime() - lastDropTime > 100000000) crearGotaDeLluvia();
+    // 4. Lógica de actualización (movimiento y colisiones)
+    public boolean actualizarMovimiento(Nave nave) { 
+        // Generar nuevas entidades
+        if (TimeUtils.nanoTime() - lastDropTime > 100000000) spawnEntidad();
 	  
-	   
-	   // revisar si las gotas cayeron al suelo o chocaron con el tarro
-	   for (int i=0; i < rainDropsPos.size; i++ ) {
-		  Rectangle raindrop = rainDropsPos.get(i);
-	      raindrop.y -= 300 * Gdx.graphics.getDeltaTime();
-	      //cae al suelo y se elimina
-	      if(raindrop.y + 64 < 0) {
-	    	  rainDropsPos.removeIndex(i); 
-	    	  rainDropsType.removeIndex(i);
-	      }
-	      if(raindrop.overlaps(tarro.getBounds())) { //la gota choca con el tarro
-	    	if(rainDropsType.get(i)==1) { // gota dañina
-	    	  tarro.dañar();
-	    	  if (tarro.getVidas()<=0)
-	    		 return false; // si se queda sin vidas retorna falso /game over
-	    	  rainDropsPos.removeIndex(i);
-	          rainDropsType.removeIndex(i);
-	      	}else { // gota a recolectar
-	    	  tarro.sumarPuntos(10);
-	          dropSound.play();
-	          rainDropsPos.removeIndex(i);
-	          rainDropsType.removeIndex(i);
-	      	}
-	      }
-	   } 
-	  return true; 
-   }
+        // Mover y revisar colisiones
+        for (int i = 0; i < entidades.size; i++) {
+            Entidad entidad = entidades.get(i);
+            entidad.actualizar(Gdx.graphics.getDeltaTime()); // Llama al 'actualizar' de Soldado o Enemigo
+	      
+            // Si cae al suelo, se elimina
+            if (entidad instanceof Soldado && ((Soldado) entidad).estaFueraDePantalla()) {
+                entidades.removeIndex(i);
+                i--; // Ajusta el índice
+            } else if (entidad instanceof Enemigo && ((Enemigo) entidad).estaFueraDePantalla()) {
+                entidades.removeIndex(i);
+                i--; // Ajusta el índice
+            }
+
+            // Si choca con la Nave
+            if (entidad.getBounds().overlaps(nave.getBounds())) {
+                
+                if (entidad instanceof Enemigo) { // Si es un enemigo
+                    nave.dañar();
+                    if (nave.getVidas() <= 0)
+                        return false; // GAME OVER
+                
+                } else if (entidad instanceof Soldado) { // Si es un soldado (rescate)
+                    nave.sumarPuntos(10);
+                    dropSound.play();
+                }
+                
+                entidades.removeIndex(i); // Elimina al soldado o enemigo
+                i--;
+            }
+        } 
+        return true; // Sigue el juego
+    }
    
-   public void actualizarDibujoLluvia(SpriteBatch batch) { 
-	   
-	  for (int i=0; i < rainDropsPos.size; i++ ) {
-		  Rectangle raindrop = rainDropsPos.get(i);
-		  if(rainDropsType.get(i)==1) // gota dañina
-	         batch.draw(gotaMala, raindrop.x, raindrop.y); 
-		  else
-			 batch.draw(gotaBuena, raindrop.x, raindrop.y); 
-	   }
-   }
-   public void destruir() {
-      dropSound.dispose();
-      rainMusic.dispose();
-   }
-   public void pausar() {
-	  rainMusic.stop();
-   }
-   public void continuar() {
-	  rainMusic.play();
-   }
+    // 5. Lógica de dibujo
+    public void actualizarDibujoLluvia(SpriteBatch batch) { 
+        // Dibuja todas las entidades (Soldados y Enemigos)
+        for (Entidad entidad : entidades) {
+            entidad.dibujar(batch);
+        }
+    }
    
+    public void destruir() {
+        dropSound.dispose();
+        rainMusic.dispose();
+        // Las texturas se liberan en GameScreen
+    }
+   
+    public void pausar() {
+        rainMusic.stop();
+    }
+   
+    public void continuar() {
+        rainMusic.play();
+    }
+    
+    public Array<Entidad> getEntidades() {
+        return entidades;
+    }
 }

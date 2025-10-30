@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
 	final GameLluviaMenu game;
@@ -19,6 +20,8 @@ public class GameScreen implements Screen {
 	private Lluvia lluvia;
 	private Texture misilTexture;
 	private Sound sonidoDisparo;
+	private Texture soldadoTexture;
+	private Texture enemigoTexture;
 
 	   
 	//boolean activo = true;
@@ -34,13 +37,13 @@ public class GameScreen implements Screen {
 		  nave = new Nave(new Texture(Gdx.files.internal("nave.png")), misilTexture, hurtSound, sonidoDisparo);
          
 	      // load the drop sound effect and the rain background "music" 
-         Texture gota = new Texture(Gdx.files.internal("drop.png"));
-         Texture gotaMala = new Texture(Gdx.files.internal("dropBad.png"));
+		  soldadoTexture = new Texture(Gdx.files.internal("soldado.png")); 
+		  enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
          
          Sound dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
         
 	     Music rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-         lluvia = new Lluvia(gota, gotaMala, dropSound, rainMusic);
+         lluvia = new Lluvia(soldadoTexture, enemigoTexture, dropSound, rainMusic);
 
 	      // camera
 	      camera = new OrthographicCamera();
@@ -51,6 +54,36 @@ public class GameScreen implements Screen {
 	      
 	      // creacion de la lluvia
 	      lluvia.crear();
+	}
+	
+	// En GameScreen.java
+
+	private void revisarColisiones() {
+	    Array<Misil> misiles = nave.getMisiles();
+	    Array<Entidad> entidades = lluvia.getEntidades();
+
+	    // Usamos bucles 'for' tradicionales para poder eliminar de forma segura
+	    for (int i = 0; i < misiles.size; i++) {
+	        Misil misil = misiles.get(i);
+
+	        for (int j = 0; j < entidades.size; j++) {
+	            Entidad entidad = entidades.get(j);
+
+	            // ¿Es un enemigo?
+	            if (entidad instanceof Enemigo) {
+
+	                // ¿El misil choca con el enemigo?
+	                if (misil.getBounds().overlaps(entidad.getBounds())) {
+
+	                    // ¡Colisión!
+	                    misiles.removeIndex(i);     // Elimina el misil
+	                    entidades.removeIndex(j);   // Elimina al enemigo
+	                    i--; // Ajusta el índice del bucle de misiles
+	                    break; // El misil ya no existe, sal del bucle de enemigos
+	                }
+	            }
+	        }
+	    }
 	}
 
 	@Override
@@ -77,6 +110,9 @@ public class GameScreen implements Screen {
 	    	  dispose();
 	       }
 		}
+		
+		revisarColisiones();
+		
 		batch.begin();
 		
 		//dibujar textos
@@ -122,7 +158,8 @@ public class GameScreen implements Screen {
       lluvia.destruir();
       misilTexture.dispose();
       sonidoDisparo.dispose();
-
+      soldadoTexture.dispose();
+      enemigoTexture.dispose();
 	}
 
 }
