@@ -18,14 +18,14 @@ public class MainMenuScreen implements Screen {
 	private BitmapFont font;
 	private OrthographicCamera camera;
 
-	// --- Variables nuevas para el botón ---
-	private Texture botonJugarTexture; // <-- NUEVO: Textura para la imagen del botón
-	private Rectangle botonJugarBounds; // <-- NUEVO: Los límites (el "hitbox") del botón
+	// --- Variables para el botón ---
+	private Texture botonJugarTexture; // 
+	private Rectangle botonJugarBounds; // 
 
 	public MainMenuScreen(final GameLluviaMenu game) {
 		this.game = game;
-		this.batch = game.getBatch(); // <-- Línea 100% limpia
-		this.font = game.getFont();   // <-- Línea 100% limpia
+		this.batch = game.getBatch(); // 
+		this.font = game.getFont();   // 
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 480);
@@ -74,7 +74,6 @@ public class MainMenuScreen implements Screen {
 			
 			// Revisa si las coordenadas del clic están DENTRO de los límites del botón
 			if (botonJugarBounds.contains(touchPos.x, touchPos.y)) {
-				// ¡Sí! El usuario tocó el botón.
 				game.setScreen(new GameScreen(game));
 				dispose();
 			}
@@ -114,7 +113,7 @@ public class MainMenuScreen implements Screen {
 	@Override
 	public void dispose() {
 		// Es importante liberar la memoria de las texturas que cargamos
-		botonJugarTexture.dispose(); // <-- NUEVO
+		botonJugarTexture.dispose(); 
 	}
 
 }

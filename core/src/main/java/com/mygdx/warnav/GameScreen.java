@@ -28,7 +28,7 @@ public class GameScreen implements Screen {
 	private Sound sonidoDisparo;
 	private Sound hurtSound;
 	private Sound sonidoRecarga;
-	private Sound dropSound;
+	private Sound sonidoRescate;
 	private Music rainMusic;
 
 
@@ -48,7 +48,7 @@ public class GameScreen implements Screen {
 		// --- Cargar sonidos ---
 		hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
 		sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
-		dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
+		sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
 		sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
 		
 		// --- Cargar música ---
@@ -57,7 +57,7 @@ public class GameScreen implements Screen {
 		// ¡Esta línea (la 53) ahora funciona!
 		nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
 		
-		lluvia = new Lluvia(soldadoTexture, enemigoTexture, dropSound, rainMusic);
+		lluvia = new Lluvia(soldadoTexture, enemigoTexture, sonidoRescate, rainMusic);
 
 		// camera
 		camera = new OrthographicCamera();
@@ -163,7 +163,7 @@ public class GameScreen implements Screen {
 		sonidoDisparo.dispose();
 		hurtSound.dispose();
 		sonidoRecarga.dispose();
-		dropSound.dispose();
+		sonidoRescate.dispose();
 		rainMusic.dispose();
 	}
 }

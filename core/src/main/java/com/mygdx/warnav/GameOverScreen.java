@@ -73,5 +73,4 @@ public class GameOverScreen implements Screen {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

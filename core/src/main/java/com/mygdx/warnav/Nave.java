@@ -18,23 +18,20 @@ public class Nave extends Entidad {
 	private int tiempoHerido;
 	private Array<Misil> misiles;
 	private Texture misilTexture;
-	private Sound sonidoDisparo;
-	
-	// AÑADIMOS EL CAMPO
-	private Sound sonidoRecarga; 
-
 	private final int MUNICION_MAXIMA = 12;
 	private int municionActual;
-
-	// ACTUALIZAMOS EL CONSTRUCTOR (ESTA ES LA LÍNEA QUE DA ERROR)
+	private Sound sonidoDisparo;
+	private Sound sonidoRecarga; 
+	
+	// ACTUALIZAMOS EL CONSTRUCTOR 
 	public Nave(Texture texNave, Texture texMisil, Sound ss, Sound sonidoDisparo, Sound sonidoRecarga) {
 		super(texNave);
 		this.misilTexture = texMisil;
 		this.sonidoHerido = ss;
 		this.sonidoDisparo = sonidoDisparo;
-		this.sonidoRecarga = sonidoRecarga; // <-- 2b. Guardamos el sonido
+		this.sonidoRecarga = sonidoRecarga; 
 	
-		// Hitbox pequeño (64x64)
+		// Hitbox nave
 		float nuevoAncho = 64;
 		float nuevoAlto = 64;
 		this.bounds.width = nuevoAncho;
@@ -145,14 +142,11 @@ public class Nave extends Entidad {
 	
 	private void recargar() {
 		municionActual = MUNICION_MAXIMA;
-		// <-- 3. USAMOS EL SONIDO
 		sonidoRecarga.play();
 	}
 
 	public void destruir() {
 		super.destruir();
-		// Es mejor que GameScreen (quien carga los sonidos) los destruya.
-		// Por eso quitamos los .dispose() de aquí.
 	}
 
 	public boolean estaHerido() {
