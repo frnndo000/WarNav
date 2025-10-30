@@ -8,7 +8,13 @@ public class Soldado extends Entidad {
     private int velocidad = 200;
 
     public Soldado(Texture texture) {
-        super(texture); 
+    	super(texture); // Esto llama al constructor de Entidad, que pone el tamaño original
+
+    	float nuevoAncho = 32;
+    	float nuevoAlto = 32;
+    	// Actualizamos el 'bounds' (hitbox) con el nuevo tamaño
+    	this.bounds.width = nuevoAncho;
+    	this.bounds.height = nuevoAlto;
     }
 
     @Override
@@ -19,8 +25,7 @@ public class Soldado extends Entidad {
 
     @Override
     public void dibujar(SpriteBatch batch) {
-        // dibuja el soldado
-        batch.draw(texture, bounds.x, bounds.y);
+    	batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
     }
     
     // metodo para saber si salio de la pantalla

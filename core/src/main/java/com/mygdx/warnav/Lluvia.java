@@ -42,7 +42,7 @@ public class Lluvia {
         Entidad nuevaEntidad;
         
         // Decide aleatoriamente si crear un Enemigo o un Soldado
-        if (MathUtils.random(1, 10) < 5) {	    	  
+        if (MathUtils.random(1, 10) < 9) {	    	  
             nuevaEntidad = new Enemigo(enemigoTexture);
         } else {
             nuevaEntidad = new Soldado(soldadoTexture);
@@ -59,7 +59,7 @@ public class Lluvia {
     // 4. Lógica de actualización (movimiento y colisiones)
     public boolean actualizarMovimiento(Nave nave) { 
         // Generar nuevas entidades
-        if (TimeUtils.nanoTime() - lastDropTime > 100000000) spawnEntidad();
+        if (TimeUtils.nanoTime() - lastDropTime > 280000000) spawnEntidad();
 	  
         // Mover y revisar colisiones
         for (int i = 0; i < entidades.size; i++) {
