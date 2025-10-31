@@ -1,33 +1,67 @@
 # WarNav
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+WarNav es un juego arcade 2D de disparos (shooter) desarrollado en Java con LibGDX para la asignatura de Programación Avanzada (ICI2241).
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+El objetivo es controlar una nave de guerra, rescatar soldados perdidos en una zona de conflicto y destruir enemigos para acumular el mayor puntaje posible.
 
-## Platforms
+## Pre-requisitos
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+Antes de comenzar, asegúrate de tener instalado el siguiente software:
+* **Java JDK 11:** El proyecto está configurado para usar esta versión de Java.
+* **Eclipse IDE:** Se recomienda "Eclipse IDE for Java Developers" o "Eclipse IDE for Enterprise Java and Web Developers".
+* **Git:** Para clonar el repositorio.
 
-## Gradle
+## Instalación y Configuración en Eclipse
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+Sigue estos pasos para importar y ejecutar el proyecto correctamente.
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+### 1. Clonar el Repositorio
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+Abre una terminal o Git Bash en la carpeta donde quieras descargar el proyecto y ejecuta el siguiente comando:
+```sh
+git clone [https://github.com/frnndo000/WarNav.git](https://github.com/frnndo000/WarNav.git)
+```
+### 2. Importar el Proyecto en Eclipse
+
+Este es un proyecto Gradle, por lo que debe ser importado de una manera específica:
+
+1.  Inicia Eclipse IDE.
+2.  Ve al menú **File > Import...**.
+3.  En el asistente de importación, expande la carpeta **Gradle** y selecciona **Existing Gradle Project**.
+4.  Presiona **Next**.
+5.  En **Project root directory**, presiona **Browse...** y navega hasta la carpeta `WarNav` que acabas de clonar.
+6.  Haz clic en **Finish**.
+
+### 3. Esperar la Construcción de Gradle
+
+La primera vez que importes, Eclipse (usando Gradle) necesitará descargar todas las dependencias del proyecto (LibGDX, etc.). Este proceso puede tardar unos minutos. Podrás ver el progreso en la consola o en la pestaña "Gradle Tasks" en la esquina inferior derecha.
+
+---
+
+## Cómo Ejecutar el Juego
+
+Una vez que el proyecto se haya importado y Gradle haya terminado de construir (sin errores), sigue estos pasos para crear la configuración de ejecución:
+
+1.  Ve al menú **Run > Run Configurations...**.
+2.  Haz clic derecho en **Java Application** en el panel izquierdo y selecciona **New Launch Configuration**.
+3.  En el campo **Name**, escribe un nombre (ej: `runwarnav`).
+4.  En la pestaña **Main**, en el campo **Project**, presiona **Browse...** y selecciona `WarNav-lwjgl3`.
+5.  En el campo **Main class**, escribe `com.mygdx.warnav.lwjgl3.Lwjgl3Launcher`.
+6.  Haz clic en **Apply** y luego en **Run**.
+
+¡La ventana del juego debería aparecer y estar lista para jugar!
+
+## Controles del Juego
+
+| Acción | Tecla / Botón |
+| :--- | :--- |
+| Mover nave | Teclas `WASD` |
+| Disparar misiles | `J` |
+| Recargar Munición | `K` |
+| Pausar juego | `ESC` |
+
+## Autores (Grupo 36)
+
+* Fernando López
+* Pablo Saldivia
+* Etian Vargas
