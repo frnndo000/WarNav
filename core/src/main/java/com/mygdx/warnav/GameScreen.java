@@ -21,10 +21,7 @@ public class GameScreen implements Screen {
 	private Texture misilTexture;
 	private Texture soldadoTexture;
 	private Texture enemigoTexture;
-	
-	// Declarar la textura de la nave aquí
 	private Texture naveTexture; 
-
 	private Sound sonidoDisparo;
 	private Sound hurtSound;
 	private Sound sonidoRecarga;
@@ -37,24 +34,19 @@ public class GameScreen implements Screen {
 		this.batch = game.getBatch();
 		this.font = game.getFont();
 		
-		// --- Cargar texturas ---
 		misilTexture = new Texture(Gdx.files.internal("misil.png"));
 		soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
 		enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
 		
-		// Cargar la textura de la nave 
 		naveTexture = new Texture(Gdx.files.internal("nave.png")); 
 		
-		// --- Cargar sonidos ---
 		hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
 		sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
 		sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
 		sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
 		
-		// --- Cargar música ---
 		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
 		
-		// ¡Esta línea (la 53) ahora funciona!
 		nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
 		
 		lluvia = new Lluvia(soldadoTexture, enemigoTexture, sonidoRescate, rainMusic);
@@ -97,7 +89,6 @@ public class GameScreen implements Screen {
 		nave.actualizar(delta);
 		
 		if (!nave.estaHerido()) {
-			nave.actualizarMovimiento();
 			if (!lluvia.actualizarMovimiento(nave)) {
 				if (game.getHigherScore()<nave.getPuntos())
 					game.setHigherScore(nave.getPuntos());

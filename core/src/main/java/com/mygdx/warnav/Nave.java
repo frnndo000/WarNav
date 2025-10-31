@@ -23,7 +23,6 @@ public class Nave extends Entidad {
 	private Sound sonidoDisparo;
 	private Sound sonidoRecarga; 
 	
-	// ACTUALIZAMOS EL CONSTRUCTOR 
 	public Nave(Texture texNave, Texture texMisil, Sound ss, Sound sonidoDisparo, Sound sonidoRecarga) {
 		super(texNave);
 		this.misilTexture = texMisil;
@@ -31,7 +30,6 @@ public class Nave extends Entidad {
 		this.sonidoDisparo = sonidoDisparo;
 		this.sonidoRecarga = sonidoRecarga; 
 	
-		// Hitbox nave
 		float nuevoAncho = 64;
 		float nuevoAlto = 64;
 		this.bounds.width = nuevoAncho;
@@ -78,13 +76,11 @@ public class Nave extends Entidad {
 	}
 
 	public void actualizarMovimiento() {
-		// Controles WASD
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) bounds.x -= velocidad * Gdx.graphics.getDeltaTime();
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) bounds.x += velocidad * Gdx.graphics.getDeltaTime();
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) bounds.y += velocidad * Gdx.graphics.getDeltaTime();
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) bounds.y -= velocidad * Gdx.graphics.getDeltaTime();
 
-		// Límites de pantalla
 		if (bounds.x < 0) bounds.x = 0;
 		if (bounds.x > 800 - bounds.width) bounds.x = 800 - bounds.width;
 		if (bounds.y < 0) bounds.y = 0;
