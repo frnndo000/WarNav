@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.graphics.Pixmap;
+
 
 public class GameScreen implements Screen {
 	final GameLluviaMenu game;
@@ -28,7 +30,36 @@ public class GameScreen implements Screen {
 	private Sound sonidoRescate;
 	private Music rainMusic;
 
+	// ===== Fondo de estrellas =====
+    static class Star { float x, y, speed, size; }
+    private Texture starTex;
+    private Star[] starsFar, starsMid, starsNear;
+    
+    private Star[] createStarLayer(int count, float minSpeed, float maxSpeed, float minSize, float maxSize) {
+        Star[] arr = new Star[count];
+        for (int i = 0; i < count; i++) {
+            Star s = new Star();
+            s.x = (float)Math.random() * camera.viewportWidth;
+            s.y = (float)Math.random() * camera.viewportHeight;
+            s.speed = minSpeed + (float)Math.random() * (maxSpeed - minSpeed);
+            s.size  = minSize  + (float)Math.random() * (maxSize  - minSize);
+            arr[i] = s;
+        }
+        return arr;
+    }
+    
 
+    private void updateAndDrawStars(Star[] layer, float speedScale) {
+        for (Star s : layer) {
+            s.y -= s.speed * speedScale * Gdx.graphics.getDeltaTime() * 60f; // normaliza a ~60fps
+            if (s.y < -2) {
+                s.y = camera.viewportHeight + 2;
+                s.x = (float)Math.random() * camera.viewportWidth;
+            }
+            batch.draw(starTex, s.x, s.y, s.size, s.size);
+        }
+    }
+    
 	public GameScreen(final GameLluviaMenu game) {
 		this.game = game;
 		this.batch = game.getBatch();
@@ -44,11 +75,9 @@ public class GameScreen implements Screen {
 		sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
 		sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
 		sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
-		
 		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
 		
 		nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
-		
 		lluvia = new Lluvia(soldadoTexture, enemigoTexture, sonidoRescate, rainMusic);
 
 		// camera
@@ -58,6 +87,16 @@ public class GameScreen implements Screen {
 		// creacion de la nave y la lluvia
 		nave.crear();
 		lluvia.crear();
+		
+		Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
+        pm.setColor(1, 1, 1, 1);
+        pm.fill();
+        starTex = new Texture(pm);
+        pm.dispose();
+
+        starsFar  = createStarLayer(120, 0.15f, 0.35f, 0.8f, 1.2f);
+        starsMid  = createStarLayer(80,  0.40f, 0.80f, 1.0f, 1.8f);
+        starsNear = createStarLayer(50,  0.60f, 0.90f, 1.4f, 2.2f);
 	}
 	
 	private void revisarColisiones() {
@@ -94,6 +133,7 @@ public class GameScreen implements Screen {
 					game.setHigherScore(nave.getPuntos());
 				game.setScreen(new GameOverScreen(game));
 				dispose();
+				return;
 			}
 		}
 		
@@ -102,6 +142,10 @@ public class GameScreen implements Screen {
 		batch.begin();
 		
 		//dibujar textos
+		updateAndDrawStars(starsFar,  0.75f);
+        updateAndDrawStars(starsMid,  0.5f);
+        updateAndDrawStars(starsNear, 1f);
+        
 		font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
 		font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
 		font.draw(batch, "HighScore : " + game.getHigherScore(), camera.viewportWidth/2-50, 475);
@@ -137,24 +181,23 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void dispose() {
-		// Destruimos la nave y la lluvia
-		nave.destruir();
-		lluvia.destruir();
-		
-		// Destruimos las texturas
-		misilTexture.dispose();
-		soldadoTexture.dispose();
-		enemigoTexture.dispose();
-		
-		// Destruir la textura de la nave
-		naveTexture.dispose(); 
-		
-		// Destruimos los sonidos
-		sonidoDisparo.dispose();
-		hurtSound.dispose();
-		sonidoRecarga.dispose();
-		sonidoRescate.dispose();
-		rainMusic.dispose();
-	}
+    public void dispose() {
+        // Entidades
+        nave.destruir();
+        lluvia.destruir();
+
+        // Texturas
+        misilTexture.dispose();
+        soldadoTexture.dispose();
+        enemigoTexture.dispose();
+        naveTexture.dispose();
+        if (starTex != null) starTex.dispose();
+
+        // Sonidos/Música
+        sonidoDisparo.dispose();
+        hurtSound.dispose();
+        sonidoRecarga.dispose();
+        sonidoRescate.dispose();
+        rainMusic.dispose();
+    }
 }
