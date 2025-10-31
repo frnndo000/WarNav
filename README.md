@@ -13,23 +13,29 @@ Antes de comenzar, asegúrate de tener instalado el siguiente software:
 
 ## Instalación y Configuración en Eclipse
 
-Sigue estos pasos para importar y ejecutar el proyecto correctamente.
+Sigue estos pasos para importar y ejecutar el proyecto correctamente. Este método (clonar manualmente y luego importar) es el más seguro.
 
-### 1. Clonar el Repositorio
+### 1. Clonar el Repositorio (Manualmente)
 
-Abre una terminal o Git Bash en la carpeta donde quieras descargar el proyecto y ejecuta el siguiente comando:
-```sh
-git clone [https://github.com/frnndo000/WarNav.git](https://github.com/frnndo000/WarNav.git)
-```
-### 2. Importar el Proyecto en Eclipse
+Primero, clonaremos el proyecto desde la terminal, fuera de Eclipse, para tener control total.
 
-Este es un proyecto Gradle, por lo que debe ser importado de una manera específica:
+1.  Abre una terminal (Git Bash, CMD, o PowerShell).
+2.  Navega a la carpeta donde guardas tus proyectos (ej. `C:\Users\TuUsuario\eclipse-workspace`).
+3.  Ejecuta el siguiente comando para clonar el repositorio:
+    ```sh
+    git clone https://github.com/frnndo000/WarNav.git
+    ```
+4.  Verifica que la carpeta `WarNav` se haya creado en tu explorador de archivos.
+
+### 2. Importar como Proyecto Gradle
+
+Ahora, con el proyecto ya en tu PC, le diremos a Eclipse cómo importarlo correctamente.
 
 1.  Inicia Eclipse IDE.
 2.  Ve al menú **File > Import...**.
-3.  En el asistente de importación, expande la carpeta **Gradle** y selecciona **Existing Gradle Project**.
+3.  En el asistente de importación, expande la carpeta **Gradle** (¡NO la carpeta Git!) y selecciona **Existing Gradle Project**.
 4.  Presiona **Next**.
-5.  En **Project root directory**, presiona **Browse...** y navega hasta la carpeta `WarNav` que acabas de clonar.
+5.  En el campo **Project root directory**, presiona **Browse...** y navega hasta la carpeta `WarNav` que acabas de clonar en el paso anterior.
 6.  Haz clic en **Finish**.
 
 ### 3. Esperar la Construcción de Gradle
