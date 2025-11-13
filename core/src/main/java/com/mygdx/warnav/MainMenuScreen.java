@@ -2,6 +2,7 @@ package com.mygdx.warnav;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture; 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,133 +12,175 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainMenuScreen implements Screen {
 
-	final GameLluviaMenu game;
-	private SpriteBatch batch;
-	private BitmapFont font;
-	private OrthographicCamera camera;
+    final GameLluviaMenu game;
+    private SpriteBatch batch;
+    private BitmapFont font;
+    private OrthographicCamera camera;
 
+    private Texture botonJugarTexture; 
+    private Rectangle botonJugarBounds; 
 
-	private Texture botonJugarTexture; 
-	private Rectangle botonJugarBounds; 
+    // Ranking
+    private List<UserPuntaje> top10 = new ArrayList<>();
 
-	public MainMenuScreen(final GameLluviaMenu game) {
-		this.game = game;
-		this.batch = game.getBatch();
-		this.font = game.getFont();  
-		
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 480);
+    // Utilidad para centrar texto
+    private final GlyphLayout layout = new GlyphLayout();
 
-		botonJugarTexture = new Texture(Gdx.files.internal("boton_jugar.png")); 
+    public MainMenuScreen(final GameLluviaMenu game) {
+        this.game = game;
+        this.batch = game.getBatch();
+        this.font = game.getFont();  
 
-		float botonAncho = 200; 
-		float botonAlto = 100;  
-		float botonX = (800 - botonAncho) / 2; 
-		float botonY = 100; 
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 480);
 
-		botonJugarBounds = new Rectangle(botonX, botonY, botonAncho, botonAlto);
-	}
-	
-	private final GlyphLayout layout = new GlyphLayout();
-	
-	private void drawCentered(BitmapFont f, SpriteBatch b, String text, float y, float scale) {
-	    f.getData().setScale(scale);
-	    layout.setText(f, text);
-	    float x = (camera.viewportWidth - layout.width) / 2f;
-	    f.draw(b, text, x, y);
-	}
+        botonJugarTexture = new Texture(Gdx.files.internal("boton_jugar.png")); 
 
+        float botonAncho = 200; 
+        float botonAlto = 100;  
+        float botonX = (800 - botonAncho) / 2f; 
+        float botonY = 80; 
 
-	@Override
-	public void render(float delta) {
-	    ScreenUtils.clear(0.02f, 0.02f, 0.12f, 1f);
+        botonJugarBounds = new Rectangle(botonX, botonY, botonAncho, botonAlto);
+    }
 
-	    camera.update();
-	    batch.setProjectionMatrix(camera.combined);
+    private void drawCentered(BitmapFont f, SpriteBatch b, String text, float y, float scale) {
+        f.getData().setScale(scale);
+        layout.setText(f, text);
+        float x = (camera.viewportWidth - layout.width) / 2f;
+        f.draw(b, text, x, y);
+    }
 
-	    // --- layout base ---
-	    final float TOP_Y = 430f;
-	    final float LINE = 32f;         
-	    final float GAP = 18f;          
-	    final float BTN_GAP = 20f;     
+    @Override
+    public void show() {
+        // Cada vez que entras al menú, refresca el Top 10
+        top10 = GestorRanking.getInstance().getTop10();
+        if (top10 == null) {
+            top10 = new ArrayList<>();
+        }
+    }
 
-	    batch.begin();
+    @Override
+    public void render(float delta) {
+        // Fondo oscuro estilo arcade
+        ScreenUtils.clear(0.02f, 0.02f, 0.12f, 1f);
 
-	    // 1) Título
-	    drawCentered(font, batch, "Bienvenido a WarNav!!", TOP_Y, 2.0f);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
 
-	    // 2) Controles
-	    float y = TOP_Y - GAP - LINE;                 
+        final float TOP_Y = 440f;
 
-	    y -= LINE;
-	    drawCentered(font, batch, "WASD  - Mover Nave", y, 1.1f);
+        batch.begin();
 
-	    y -= LINE;
-	    drawCentered(font, batch, "J - Disparar   |   K - Recargar", y, 1.1f);
+        // --- TÍTULO ---
+        font.setColor(Color.CYAN);
+        drawCentered(font, batch, "W A R N A V", TOP_Y, 2.2f);
 
-	    y -= LINE;
-	    drawCentered(font, batch, "ESC - Pausar Juego", y, 1.1f);
-	    
-	    y -= (LINE + GAP);
-	    drawCentered(font, batch, "CLICK PARA COMENZAR", y, 1.2f);
+        // Línea bajo el título
+        font.getData().setScale(1f);
+        font.setColor(Color.SKY);
+        layout.setText(font, "ARCADE EDITION");
+        float subX = (camera.viewportWidth - layout.width) / 2f;
+        font.draw(batch, "ARCADE EDITION", subX, TOP_Y - 30);
 
-	    float botonX = (camera.viewportWidth - botonJugarBounds.width) / 2f;
-	    float botonY = y - BTN_GAP - botonJugarBounds.height;
+        // --- CONTROLES (lado izquierdo) ---
+        float leftX = 60f;
+        float yLeft = TOP_Y - 80f;
 
-	    botonJugarBounds.setPosition(botonX, botonY);
+        font.getData().setScale(1.2f);
+        font.setColor(Color.YELLOW);
+        font.draw(batch, "CONTROLES", leftX, yLeft);
 
-	    batch.draw(botonJugarTexture, botonX, botonY, botonJugarBounds.width, botonJugarBounds.height);
+        font.getData().setScale(1.0f);
+        font.setColor(Color.WHITE);
+        yLeft -= 35f;
+        font.draw(batch, "WASD  - Mover nave", leftX, yLeft);
 
-	    batch.end();
-	    
-		if (Gdx.input.justTouched()) { 
-			
-			Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-			camera.unproject(touchPos);
+        yLeft -= 25f;
+        font.draw(batch, "J     - Disparar", leftX, yLeft);
 
-			if (botonJugarBounds.contains(touchPos.x, touchPos.y)) {
-				game.setScreen(new GameScreen(game));
-				dispose();
-			}
-		}
-	}
+        yLeft -= 25f;
+        font.draw(batch, "K     - Recargar", leftX, yLeft);
 
-	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-		
-	}
+        yLeft -= 25f;
+        font.draw(batch, "ESC   - Pausar juego", leftX, yLeft);
 
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
-	}
+        // --- TOP 10 (lado derecho) ---
+        float rightX = 440f;
+        float yRight = TOP_Y - 80f;
 
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
+        font.getData().setScale(1.2f);
+        font.setColor(Color.LIME);
+        font.draw(batch, "TOP 10 JUGADORES", rightX, yRight);
 
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
+        font.getData().setScale(1.0f);
+        font.setColor(Color.LIGHT_GRAY);
+        yRight -= 30f;
 
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
-	}
+        if (top10.isEmpty()) {
+            font.draw(batch, "Sin registros aún", rightX, yRight);
+        } else {
+            for (int i = 0; i < top10.size(); i++) {
+                UserPuntaje p = top10.get(i);
+                String linea = (i + 1) + ". " + p.getNombreJugador() + " - " + p.getPuntos() + " pts";
+                font.draw(batch, linea, rightX, yRight);
+                yRight -= 22f;
+            }
+        }
 
-	@Override
-	public void dispose() {
-		botonJugarTexture.dispose(); 
-	}
+        // --- TEXTO DE INVITACIÓN ---
+        font.getData().setScale(1.1f);
+        font.setColor(Color.ORANGE);
+        drawCentered(font, batch, "CLICK EN EL BOTON PARA COMENZAR", 130f + botonJugarBounds.height + 15f, 1.1f);
 
+        // --- BOTÓN JUGAR ---
+        float botonX = (camera.viewportWidth - botonJugarBounds.width) / 2f;
+        float botonY = 80f;
+        botonJugarBounds.setPosition(botonX, botonY);
+
+        batch.draw(botonJugarTexture, botonX, botonY, botonJugarBounds.width, botonJugarBounds.height);
+
+        // Reset al font para no dejar escalas locas a otras pantallas
+        font.getData().setScale(1f);
+        font.setColor(Color.WHITE);
+
+        batch.end();
+
+        // --- INPUT ---
+        if (Gdx.input.justTouched()) {
+            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touchPos);
+
+            if (botonJugarBounds.contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Si quieres que se adapte, puedes actualizar la cámara aquí
+        // camera.setToOrtho(false, width, height);
+    }
+
+    @Override
+    public void pause() { }
+
+    @Override
+    public void resume() { }
+
+    @Override
+    public void hide() { }
+
+    @Override
+    public void dispose() {
+        botonJugarTexture.dispose(); 
+    }
 }
+
