@@ -17,7 +17,7 @@ public class GestorRanking {
     private GestorRanking(int maxEntradas) {
         puntajesAltos = new ArrayList<>();
         this.MAX_ENTRADAS = maxEntradas;
-
+        
         // Sembrar puntajes iniciales de NPCs espaciales
         cargarPuntajesIniciales();
     }
@@ -31,16 +31,16 @@ public class GestorRanking {
 
     private void cargarPuntajesIniciales() {
         // Puedes usar agregarPuntaje para respetar el orden y el límite
-        agregarPuntaje("CAPITAN ORION",      1500);
-        agregarPuntaje("NOVA DRIFTER",       1200);
-        agregarPuntaje("COMANDANTE VEGA",    980);
-        agregarPuntaje("ANDROMEDA",          870);
-        agregarPuntaje("LUNA ROJA",          750);
-        agregarPuntaje("ASTRO PIRATA",       640);
-        agregarPuntaje("SATURNO-7",          520);
-        agregarPuntaje("NEBULOSA X",         410);
-        agregarPuntaje("COSMO RIDER",        350);
-        agregarPuntaje("ESTRELLA FUGAZ",     290);
+        agregarPuntaje("CAPITAN ORION",      15000);
+        agregarPuntaje("NOVA DRIFTER",       12000);
+        agregarPuntaje("COMANDANTE VEGA",    9800);
+        agregarPuntaje("ANDROMEDA",          8700);
+        agregarPuntaje("LUNA ROJA",          7500);
+        agregarPuntaje("ASTRO PIRATA",       6400);
+        agregarPuntaje("SATURNO-7",          5200);
+        agregarPuntaje("NEBULOSA X",         4100);
+        agregarPuntaje("COSMO RIDER",        3500);
+        agregarPuntaje("ESTRELLA FUGAZ",     2900);
     }
 
     public void agregarPuntaje(String nombre, int puntos) {
@@ -68,14 +68,15 @@ public class GestorRanking {
 
         int puntosActual = actual.getPuntos();
 
-        // primer jugador con más puntos que el actual
-        for (UserPuntaje p : puntajesAltos) {
+        // Recorremos desde el final hacia el inicio
+        for (int i = puntajesAltos.size() - 1; i >= 0; i--) {
+            UserPuntaje p = puntajesAltos.get(i);
             if (p.getPuntos() > puntosActual) {
                 return p;
             }
         }
 
-        // nadie por encima
+        // Nadie tiene más puntos que el actual
         return null;
     }
 

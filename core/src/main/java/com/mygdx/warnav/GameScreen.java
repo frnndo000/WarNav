@@ -30,11 +30,20 @@ public class GameScreen implements Screen {
     private Sound sonidoRecarga;
     private Sound sonidoRescate;
     private Music rainMusic;
+    private Sound sonidoExplosion;
+    private GestorFases gestorFases;
 
+    
+    // ===== Configuración dinámica del fondo =====
+    private float bgR = 0f, bgG = 0f, bgB = 0.2f;   // color de fondo inicial (azul oscuro)
+    
     // ===== Fondo de estrellas =====
     static class Star { float x, y, speed, size; }
     private Texture starTex;
     private Star[] starsFar, starsMid, starsNear;
+    private float starsFarSpeed  = 0.75f;
+    private float starsMidSpeed  = 0.5f;
+    private float starsNearSpeed = 1.0f;
 
     // ===== Ranking / objetivo =====
     private GestorRanking gestorRanking;
@@ -72,13 +81,15 @@ public class GameScreen implements Screen {
         misilTexture = new Texture(Gdx.files.internal("misil.png"));
         soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
         enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
-        naveTexture = new Texture(Gdx.files.internal("nave.png")); 
+        naveTexture = new Texture(Gdx.files.internal("nave.png"));
 
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
         sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
         sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
         rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
+        sonidoExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
+
 
         nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
         lluvia = new Lluvia(soldadoTexture, enemigoTexture, sonidoRescate, rainMusic);
@@ -104,6 +115,10 @@ public class GameScreen implements Screen {
 
         // ===== Singleton del ranking =====
         gestorRanking = GestorRanking.getInstance();
+        
+     // ===== Gestor de fases (Template Method) =====
+        gestorFases = new GestorFases();
+
     }
 
     private void revisarColisiones() {
@@ -116,6 +131,8 @@ public class GameScreen implements Screen {
                 Entidad entidad = entidades.get(j);
                 if (entidad instanceof Enemigo) {
                     if (misil.getBounds().overlaps(entidad.getBounds())) {
+                    	sonidoExplosion.play();
+                    	nave.sumarPuntos(1);
                         misiles.removeIndex(i);
                         entidades.removeIndex(j);
                         i--; 
@@ -128,7 +145,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+    	ScreenUtils.clear(bgR, bgG, bgB, 1f);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
@@ -146,6 +163,9 @@ public class GameScreen implements Screen {
                 return;
             }
         }
+        
+        gestorFases.actualizarFaseSegunPuntos(nave.getPuntos(), nave, lluvia, this);
+;
 
         revisarColisiones();
 
@@ -159,9 +179,10 @@ public class GameScreen implements Screen {
         batch.begin();
 
         // Fondo estrellas
-        updateAndDrawStars(starsFar,  0.75f);
-        updateAndDrawStars(starsMid,  0.5f);
-        updateAndDrawStars(starsNear, 1f);
+        updateAndDrawStars(starsFar,  starsFarSpeed);
+        updateAndDrawStars(starsMid,  starsMidSpeed);
+        updateAndDrawStars(starsNear, starsNearSpeed);
+
 
         // HUD principal
         font.setColor(Color.WHITE);
@@ -194,6 +215,32 @@ public class GameScreen implements Screen {
 
         batch.end();
     }
+    
+    // === Métodos para que las fases cambien el fondo ===
+    public void setFondoColor(float r, float g, float b) {
+        this.bgR = r;
+        this.bgG = g;
+        this.bgB = b;
+    }
+    
+    public void setFondoColor(Color c) {
+        this.bgR = c.r;
+        this.bgG = c.g;
+        this.bgB = c.b;
+    }
+
+
+    public void setVelocidadEstrellas(float far, float mid, float near) {
+        this.starsFarSpeed  = far;
+        this.starsMidSpeed  = mid;
+        this.starsNearSpeed = near;
+    }
+    
+    public void setEnemigoTexture(Texture tt) {
+    	this.enemigoTexture = tt;
+    	lluvia.setEnemigoTexture(tt);
+    }
+
 
     @Override
     public void resize(int width, int height) {

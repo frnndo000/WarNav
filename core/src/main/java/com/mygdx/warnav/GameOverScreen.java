@@ -93,7 +93,7 @@ public class GameOverScreen implements Screen {
             // ===== FASE 2: MOSTRAR VECINOS EN COLUMNA CENTRAL =====
             font.getData().setScale(1.0f);
             font.setColor(Color.ORANGE);
-            drawCentered("Tu posición en el ranking (vecinos)", 330);
+            drawCentered("Tu posición en el ranking", 350);
 
             // Encontrar el índice de tu registro dentro de vecinos
             int indexSelf = -1;

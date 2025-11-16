@@ -12,7 +12,7 @@ public class Nave extends Entidad {
 	private Sound sonidoHerido;
 	private int vidas = 3;
 	private int puntos = 0;
-	private int velocidad = 300;
+	private int velocidad = 425;
 	private boolean herido = false;
 	private int tiempoHeridoMax = 50;
 	private int tiempoHerido;
