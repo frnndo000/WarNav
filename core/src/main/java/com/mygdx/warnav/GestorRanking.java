@@ -6,11 +6,10 @@ import java.util.List;
 
 public class GestorRanking {
 
-    private static GestorRanking inst;
+	private static GestorRanking inst;
     private List<UserPuntaje> puntajesAltos;
     private int MAX_ENTRADAS;
 
-    // Constructor por defecto, usa 10 como máximo de entradas
     private GestorRanking() {
         this(50);
     }
@@ -18,6 +17,9 @@ public class GestorRanking {
     private GestorRanking(int maxEntradas) {
         puntajesAltos = new ArrayList<>();
         this.MAX_ENTRADAS = maxEntradas;
+
+        // Sembrar puntajes iniciales de NPCs espaciales
+        cargarPuntajesIniciales();
     }
 
     public static GestorRanking getInstance() {
@@ -25,6 +27,20 @@ public class GestorRanking {
             inst = new GestorRanking();
         }
         return inst;
+    }
+
+    private void cargarPuntajesIniciales() {
+        // Puedes usar agregarPuntaje para respetar el orden y el límite
+        agregarPuntaje("CAPITAN ORION",      1500);
+        agregarPuntaje("NOVA DRIFTER",       1200);
+        agregarPuntaje("COMANDANTE VEGA",    980);
+        agregarPuntaje("ANDROMEDA",          870);
+        agregarPuntaje("LUNA ROJA",          750);
+        agregarPuntaje("ASTRO PIRATA",       640);
+        agregarPuntaje("SATURNO-7",          520);
+        agregarPuntaje("NEBULOSA X",         410);
+        agregarPuntaje("COSMO RIDER",        350);
+        agregarPuntaje("ESTRELLA FUGAZ",     290);
     }
 
     public void agregarPuntaje(String nombre, int puntos) {

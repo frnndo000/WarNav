@@ -41,10 +41,10 @@ public class MainMenuScreen implements Screen {
 
         botonJugarTexture = new Texture(Gdx.files.internal("boton_jugar.png")); 
 
-        float botonAncho = 200; 
+        float botonAncho = 300; 
         float botonAlto = 100;  
         float botonX = (800 - botonAncho) / 2f; 
-        float botonY = 80; 
+        float botonY = 0; 
 
         botonJugarBounds = new Rectangle(botonX, botonY, botonAncho, botonAlto);
     }
@@ -109,6 +109,10 @@ public class MainMenuScreen implements Screen {
 
         yLeft -= 25f;
         font.draw(batch, "ESC   - Pausar juego", leftX, yLeft);
+        
+        yLeft -= 120F;
+        font.draw(batch, "CLICK START", leftX + 90F, yLeft);
+
 
         // --- TOP 10 (lado derecho) ---
         float rightX = 440f;
@@ -133,14 +137,9 @@ public class MainMenuScreen implements Screen {
             }
         }
 
-        // --- TEXTO DE INVITACIÓN ---
-        font.getData().setScale(1.1f);
-        font.setColor(Color.ORANGE);
-        drawCentered(font, batch, "CLICK EN EL BOTON PARA COMENZAR", 130f + botonJugarBounds.height + 15f, 1.1f);
-
         // --- BOTÓN JUGAR ---
-        float botonX = (camera.viewportWidth - botonJugarBounds.width) / 2f;
-        float botonY = 80f;
+        float botonX = 50f;
+        float botonY = 10f;
         botonJugarBounds.setPosition(botonX, botonY);
 
         batch.draw(botonJugarTexture, botonX, botonY, botonJugarBounds.width, botonJugarBounds.height);
