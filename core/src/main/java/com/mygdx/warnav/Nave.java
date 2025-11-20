@@ -19,6 +19,8 @@ public class Nave extends Entidad {
 	private Array<Misil> misiles;
 	private Texture misilTexture;
 	private final int MUNICION_MAXIMA = 12;
+	private boolean municionInfinita = false;
+	private float tiempoPoder = 0;
 	private int municionActual;
 	private Sound sonidoDisparo;
 	private Sound sonidoRecarga; 
@@ -45,19 +47,29 @@ public class Nave extends Entidad {
 
 	@Override
 	public void actualizar(float delta) {
-		if (!estaHerido()) {
-			actualizarMovimiento();
-		}
+	    // Lógica del Power-Up
+	    if (municionInfinita) {
+	        tiempoPoder -= delta;
+	        if (tiempoPoder <= 0) {
+	            municionInfinita = false;
+	            System.out.println("¡Munición infinita terminada!");
+	        }
+	    }
 
-		for (int i = 0; i < misiles.size; i++) {
-			Misil misil = misiles.get(i);
-			misil.actualizar(delta);
+	    if (!estaHerido()) {
+	        actualizarMovimiento();
+	    }
 
-			if (misil.estaFueraDePantalla()) {
-				misiles.removeIndex(i);
-				i--;
-			}
-		}
+	    // ... resto del código de misiles igual que antes ...
+	    for (int i = 0; i < misiles.size; i++) {
+	        Misil misil = misiles.get(i);
+	        misil.actualizar(delta);
+
+	        if (misil.estaFueraDePantalla()) {
+	            misiles.removeIndex(i);
+	            i--;
+	        }
+	    }
 	}
 
 	@Override
@@ -126,14 +138,23 @@ public class Nave extends Entidad {
 	}
 
 	private void disparar() {
-		Misil misil = new Misil(misilTexture);
-		float misilX = this.bounds.x + this.bounds.width / 2 - misil.getBounds().width / 2;
-		float misilY = this.bounds.y + this.bounds.height;
-		misil.crear(misilX, misilY);
-		misiles.add(misil);
-		sonidoDisparo.play();
-		
-		municionActual--;
+	    Misil misil = new Misil(misilTexture);
+	    float misilX = this.bounds.x + this.bounds.width / 2 - misil.getBounds().width / 2;
+	    float misilY = this.bounds.y + this.bounds.height;
+	    misil.crear(misilX, misilY);
+	    misiles.add(misil);
+	    sonidoDisparo.play();
+	    
+	    // SOLO resta munición si NO tienes el poder activo
+	    if (!municionInfinita) {
+	        municionActual--;
+	    }
+	}
+	
+	public void activarMunicionInfinita() {
+	    municionInfinita = true;
+	    tiempoPoder = 5.0f; // Dura 5 segundos
+	    municionActual = MUNICION_MAXIMA; // Opcional: Rellena el cargador
 	}
 	
 	private void recargar() {

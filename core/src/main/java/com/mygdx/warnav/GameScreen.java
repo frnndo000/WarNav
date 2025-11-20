@@ -19,25 +19,31 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private SpriteBatch batch;
     private BitmapFont font;
+    
     private Nave nave;
     private Lluvia lluvia;
+    private GestorFases gestorFases;
+    private GestorRanking gestorRanking;
+
+    // Texturas
     private Texture misilTexture;
     private Texture soldadoTexture;
     private Texture enemigoTexture;
     private Texture naveTexture; 
+    private Texture powerUpTexture; 
+    
+    // Sonidos
     private Sound sonidoDisparo;
     private Sound hurtSound;
     private Sound sonidoRecarga;
     private Sound sonidoRescate;
     private Music rainMusic;
     private Sound sonidoExplosion;
-    private GestorFases gestorFases;
 
-    
-    // ===== Configuración dinámica del fondo =====
-    private float bgR = 0f, bgG = 0f, bgB = 0.2f;   // color de fondo inicial (azul oscuro)
-    
-    // ===== Fondo de estrellas =====
+    // Configuración dinámica del fondo
+    private float bgR = 0f, bgG = 0f, bgB = 0.2f;   
+
+    // Fondo de estrellas
     static class Star { float x, y, speed, size; }
     private Texture starTex;
     private Star[] starsFar, starsMid, starsNear;
@@ -45,9 +51,69 @@ public class GameScreen implements Screen {
     private float starsMidSpeed  = 0.5f;
     private float starsNearSpeed = 1.0f;
 
-    // ===== Ranking / objetivo =====
-    private GestorRanking gestorRanking;
-    private UserPuntaje objetivoActual;   // siguiente jugador a superar
+    // Ranking / objetivo
+    private UserPuntaje objetivoActual;
+
+    public GameScreen(final GameLluviaMenu game) {
+        this.game = game;
+        this.batch = game.getBatch();
+        this.font = game.getFont();
+
+        // 1. Cargar Texturas
+        misilTexture = new Texture(Gdx.files.internal("misil.png"));
+        soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
+        enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
+        naveTexture = new Texture(Gdx.files.internal("nave.png"));
+        // IMPORTANTE: Si no tienes powerup.png, usa "soldado.png" temporalmente aquí abajo
+        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png")); 
+
+        // 2. Cargar Sonidos
+        hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
+        sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
+        sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
+        sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
+        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
+        sonidoExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
+
+        // 3. Crear Nave
+        nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
+        nave.crear();
+
+        // 4. Crear Lluvia con Abstract Factory (Nivel 1 por defecto)
+        FabricaLluvia fabricaInicial = new FabricaLluvia.Nivel1(enemigoTexture, soldadoTexture);
+        lluvia = new Lluvia(fabricaInicial, sonidoRescate, rainMusic);
+        lluvia.crear();
+
+        // Camera
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 480);
+
+        // Fondo estelar
+        crearEstrellas();
+
+        // Singletons
+        gestorRanking = GestorRanking.getInstance();
+        gestorFases = new GestorFases();
+    }
+
+    // --- Getters para que las Fases accedan a las texturas ---
+    public Texture getEnemigoTexture() { return enemigoTexture; }
+    public Texture getSoldadoTexture() { return soldadoTexture; }
+    public Texture getPowerUpTexture() { return powerUpTexture; }
+    
+    // ---------------------------------------------------------
+
+    private void crearEstrellas() {
+        Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
+        pm.setColor(1, 1, 1, 1);
+        pm.fill();
+        starTex = new Texture(pm);
+        pm.dispose();
+
+        starsFar  = createStarLayer(120, 0.15f, 0.35f, 0.8f, 1.2f);
+        starsMid  = createStarLayer(80,  0.40f, 0.80f, 1.0f, 1.8f);
+        starsNear = createStarLayer(50,  0.60f, 0.90f, 1.4f, 2.2f);
+    }
 
     private Star[] createStarLayer(int count, float minSpeed, float maxSpeed, float minSize, float maxSize) {
         Star[] arr = new Star[count];
@@ -64,61 +130,13 @@ public class GameScreen implements Screen {
 
     private void updateAndDrawStars(Star[] layer, float speedScale) {
         for (Star s : layer) {
-            s.y -= s.speed * speedScale * Gdx.graphics.getDeltaTime() * 60f; // normaliza a ~60fps
+            s.y -= s.speed * speedScale * Gdx.graphics.getDeltaTime() * 60f; 
             if (s.y < -2) {
                 s.y = camera.viewportHeight + 2;
                 s.x = (float)Math.random() * camera.viewportWidth;
             }
             batch.draw(starTex, s.x, s.y, s.size, s.size);
         }
-    }
-
-    public GameScreen(final GameLluviaMenu game) {
-        this.game = game;
-        this.batch = game.getBatch();
-        this.font = game.getFont();
-
-        misilTexture = new Texture(Gdx.files.internal("misil.png"));
-        soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
-        enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
-        naveTexture = new Texture(Gdx.files.internal("nave.png"));
-
-        hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
-        sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
-        sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
-        sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
-        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-        sonidoExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
-
-
-        nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
-        lluvia = new Lluvia(soldadoTexture, enemigoTexture, sonidoRescate, rainMusic);
-
-        // camera
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-
-        // creacion de la nave y la lluvia
-        nave.crear();
-        lluvia.crear();
-
-        // Fondo estelar
-        Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
-        pm.setColor(1, 1, 1, 1);
-        pm.fill();
-        starTex = new Texture(pm);
-        pm.dispose();
-
-        starsFar  = createStarLayer(120, 0.15f, 0.35f, 0.8f, 1.2f);
-        starsMid  = createStarLayer(80,  0.40f, 0.80f, 1.0f, 1.8f);
-        starsNear = createStarLayer(50,  0.60f, 0.90f, 1.4f, 2.2f);
-
-        // ===== Singleton del ranking =====
-        gestorRanking = GestorRanking.getInstance();
-        
-     // ===== Gestor de fases (Template Method) =====
-        gestorFases = new GestorFases();
-
     }
 
     private void revisarColisiones() {
@@ -131,8 +149,8 @@ public class GameScreen implements Screen {
                 Entidad entidad = entidades.get(j);
                 if (entidad instanceof Enemigo) {
                     if (misil.getBounds().overlaps(entidad.getBounds())) {
-                    	sonidoExplosion.play();
-                    	nave.sumarPuntos(1);
+                        sonidoExplosion.play();
+                        nave.sumarPuntos(1); // Ajusta puntos si quieres
                         misiles.removeIndex(i);
                         entidades.removeIndex(j);
                         i--; 
@@ -145,33 +163,30 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-    	ScreenUtils.clear(bgR, bgG, bgB, 1f);
+        ScreenUtils.clear(bgR, bgG, bgB, 1f);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
         nave.actualizar(delta);
 
         if (!nave.estaHerido()) {
+            // check if game over
             if (!lluvia.actualizarMovimiento(nave)) {
-                // Mantienes tu lógica actual de HighScore
                 if (game.getHigherScore() < nave.getPuntos())
                     game.setHigherScore(nave.getPuntos());
-
-                // (El registro en GestorRanking se hará en GameOverScreen)
+                
                 game.setScreen(new GameOverScreen(game, nave.getPuntos()));
                 dispose();
                 return;
             }
         }
         
+        // Actualizar fases (AQUÍ OCURRE LA MAGIA DE NIVEL 1 -> NIVEL 2)
         gestorFases.actualizarFaseSegunPuntos(nave.getPuntos(), nave, lluvia, this);
-;
 
         revisarColisiones();
 
-        // ===== ACTUALIZAR OBJETIVO DEL RANKING =====
-        // Creamos un UserPuntaje "temporal" con tus puntos actuales.
-        // getSiguienteObjetivo solo usa los puntos, así que sirve.
+        // Ranking objetivo
         objetivoActual = gestorRanking.getSiguienteObjetivo(
                 new UserPuntaje("JugadorActual", nave.getPuntos())
         );
@@ -183,53 +198,36 @@ public class GameScreen implements Screen {
         updateAndDrawStars(starsMid,  starsMidSpeed);
         updateAndDrawStars(starsNear, starsNearSpeed);
 
-
-        // HUD principal
+        // HUD
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
         font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
-        font.draw(batch, "HighScore : " + game.getHigherScore(), camera.viewportWidth / 2f - 60f, 475);
         font.draw(batch, "Munición: " + nave.getMunicionActual() + " / " + nave.getMunicionMaxima(), 5, 25);
 
-        // ===== HUD de objetivo arcade (ranking) =====
+        // HUD Objetivo
         font.setColor(Color.CYAN);
         font.getData().setScale(0.95f);
-
         if (objetivoActual != null) {
-            String textoObjetivo = "Objetivo: " + objetivoActual.getNombreJugador()
+            String textoObjetivo = "Objetivo: " + objetivoActual.getNombreJugador() 
                     + " (" + objetivoActual.getPuntos() + " pts)";
             font.draw(batch, textoObjetivo, 5, 450);
         } else {
-            // No hay nadie por encima → eres Nº1
             font.draw(batch, "Objetivo: ¡Ya eres #1 del ranking!", 5, 450);
         }
 
-        // Dibujar nave y entidades
         nave.dibujar(batch);
         lluvia.actualizarDibujoLluvia(batch);
 
-        // Reset estilo fuente para no contaminar otras pantallas
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
-
         batch.end();
     }
     
-    // === Métodos para que las fases cambien el fondo ===
     public void setFondoColor(float r, float g, float b) {
-        this.bgR = r;
-        this.bgG = g;
-        this.bgB = b;
+        this.bgR = r; this.bgG = g; this.bgB = b;
     }
     
-    public void setFondoColor(Color c) {
-        this.bgR = c.r;
-        this.bgG = c.g;
-        this.bgB = c.b;
-    }
-
-
     public void setVelocidadEstrellas(float far, float mid, float near) {
         this.starsFarSpeed  = far;
         this.starsMidSpeed  = mid;
@@ -237,52 +235,37 @@ public class GameScreen implements Screen {
     }
     
     public void setEnemigoTexture(Texture tt) {
-    	this.enemigoTexture = tt;
-    	lluvia.setEnemigoTexture(tt);
+        // Opción para cambiar textura en tiempo real si quisieras
+        this.enemigoTexture = tt;
     }
 
-
-    @Override
-    public void resize(int width, int height) {
-    }
-
-    @Override
-    public void show() {
-        lluvia.continuar();
-    }
-
-    @Override
-    public void hide() {
-    }
-
+    @Override public void resize(int width, int height) {}
+    @Override public void show() { lluvia.continuar(); }
+    @Override public void hide() {}
+    
     @Override
     public void pause() {
         lluvia.pausar();
         game.setScreen(new PausaScreen(game, this));
     }
 
-    @Override
-    public void resume() {
-    }
+    @Override public void resume() {}
 
     @Override
     public void dispose() {
-        // Entidades
         nave.destruir();
         lluvia.destruir();
-
-        // Texturas
         misilTexture.dispose();
         soldadoTexture.dispose();
         enemigoTexture.dispose();
         naveTexture.dispose();
+        powerUpTexture.dispose(); // <--- DISPOSE NUEVO
         if (starTex != null) starTex.dispose();
-
-        // Sonidos/Música
         sonidoDisparo.dispose();
         hurtSound.dispose();
         sonidoRecarga.dispose();
         sonidoRescate.dispose();
         rainMusic.dispose();
+        sonidoExplosion.dispose();
     }
 }
