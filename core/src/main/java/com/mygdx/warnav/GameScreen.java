@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
     private Texture enemigoTexture;
     private Texture naveTexture; 
     private Texture powerUpTexture; 
+    private Texture vidaTexture;
     
     // Sonidos
     private Sound sonidoDisparo;
@@ -64,8 +65,8 @@ public class GameScreen implements Screen {
         soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
         enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
         naveTexture = new Texture(Gdx.files.internal("nave.png"));
-        // IMPORTANTE: Si no tienes powerup.png, usa "soldado.png" temporalmente aquí abajo
-        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png")); 
+        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png"));
+        vidaTexture = new Texture(Gdx.files.internal("vida.png"));
 
         // 2. Cargar Sonidos
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
@@ -100,6 +101,7 @@ public class GameScreen implements Screen {
     public Texture getEnemigoTexture() { return enemigoTexture; }
     public Texture getSoldadoTexture() { return soldadoTexture; }
     public Texture getPowerUpTexture() { return powerUpTexture; }
+    public Texture getVidaTexture() { return vidaTexture; }
     
     // ---------------------------------------------------------
 
@@ -259,7 +261,7 @@ public class GameScreen implements Screen {
         soldadoTexture.dispose();
         enemigoTexture.dispose();
         naveTexture.dispose();
-        powerUpTexture.dispose(); // <--- DISPOSE NUEVO
+        powerUpTexture.dispose();
         if (starTex != null) starTex.dispose();
         sonidoDisparo.dispose();
         hurtSound.dispose();
@@ -267,5 +269,6 @@ public class GameScreen implements Screen {
         sonidoRescate.dispose();
         rainMusic.dispose();
         sonidoExplosion.dispose();
+        vidaTexture.dispose();
     }
 }

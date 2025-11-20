@@ -35,16 +35,13 @@ public class FaseMedia extends FaseJuego {
      * MÉTODO NUEVO: Se llama desde GestorFases para activar el Abstract Factory Nivel 2
      */
     public void aplicarCambioFabrica(Lluvia lluvia, GameScreen screen) {
-        // Creamos la fábrica de Nivel 2 (Enemigos + Soldados + PowerUps)
         FabricaLluvia fabricaNivel2 = new FabricaLluvia.Nivel2(
-            screen.getEnemigoTexture(), // Usa la textura base o la que quieras
+            screen.getEnemigoTexture(),
             screen.getSoldadoTexture(),
-            screen.getPowerUpTexture()  // <--- Aquí entra la textura del powerup
+            screen.getPowerUpTexture(),
+            screen.getVidaTexture()
         );
         
-        // Le decimos a la lluvia que use esta nueva fábrica
         lluvia.setFabrica(fabricaNivel2);
-        
-        System.out.println("--- FASE MEDIA: Fábrica Nivel 2 Activada (Con PowerUps) ---");
+    	}
     }
-}

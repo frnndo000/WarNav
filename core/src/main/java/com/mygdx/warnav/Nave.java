@@ -14,7 +14,7 @@ public class Nave extends Entidad {
 	private int puntos = 0;
 	private int velocidad = 425;
 	private boolean herido = false;
-	private int tiempoHeridoMax = 50;
+	private int tiempoHeridoMax = 75;
 	private int tiempoHerido;
 	private Array<Misil> misiles;
 	private Texture misilTexture;
@@ -32,8 +32,8 @@ public class Nave extends Entidad {
 		this.sonidoDisparo = sonidoDisparo;
 		this.sonidoRecarga = sonidoRecarga; 
 	
-		float nuevoAncho = 64;
-		float nuevoAlto = 64;
+		float nuevoAncho = 50;
+		float nuevoAlto = 50;
 		this.bounds.width = nuevoAncho;
 		this.bounds.height = nuevoAlto;
 	}
@@ -154,12 +154,16 @@ public class Nave extends Entidad {
 	public void activarMunicionInfinita() {
 	    municionInfinita = true;
 	    tiempoPoder = 5.0f; // Dura 5 segundos
-	    municionActual = MUNICION_MAXIMA; // Opcional: Rellena el cargador
+	    municionActual = MUNICION_MAXIMA; 
 	}
 	
 	private void recargar() {
 		municionActual = MUNICION_MAXIMA;
 		sonidoRecarga.play();
+	}
+	
+	public void agregarVida() {
+	    vidas++;
 	}
 
 	public void destruir() {
