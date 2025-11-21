@@ -1,6 +1,6 @@
 package com.mygdx.warnav.lwjgl3;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application; // <--- AQUI FALTABA EL IMPORT
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.mygdx.warnav.GameLluviaMenu;
 

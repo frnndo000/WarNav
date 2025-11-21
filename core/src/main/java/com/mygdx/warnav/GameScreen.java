@@ -150,6 +150,14 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // --- 1. NUEVO: DETECCION DE PAUSA (Tecla ESC) ---
+        // Usamos la ruta completa de Input.Keys por si no tienes el import hecho
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+            pause(); // Llama a tu método pause() que cambia de pantalla
+            return;  // Importante: deja de ejecutar este frame
+        }
+        // ------------------------------------------------
+
         ScreenUtils.clear(bgR, bgG, bgB, 1f);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -177,16 +185,19 @@ public class GameScreen implements Screen {
 
         batch.begin();
 
+        // Fondo de estrellas
         updateAndDrawStars(starsFar,  starsFarSpeed);
         updateAndDrawStars(starsMid,  starsMidSpeed);
         updateAndDrawStars(starsNear, starsNearSpeed);
 
+        // HUD Info
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
         font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
         font.draw(batch, "Munición: " + nave.getMunicionActual() + " / " + nave.getMunicionMaxima(), 5, 25);
 
+        // HUD Ranking
         font.setColor(Color.CYAN);
         font.getData().setScale(0.95f);
         if (objetivoActual != null) {
@@ -197,9 +208,11 @@ public class GameScreen implements Screen {
             font.draw(batch, "Objetivo: ¡Ya eres #1 del ranking!", 5, 450);
         }
 
+        // Dibujar juego
         nave.dibujar(batch);
         lluvia.actualizarDibujoLluvia(batch);
 
+        // Resetear fuente
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
         batch.end();
