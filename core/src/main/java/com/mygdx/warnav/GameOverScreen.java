@@ -62,18 +62,15 @@ public class GameOverScreen implements Screen {
 
         batch.begin();
 
-        // === TÍTULO ===
         font.getData().setScale(2.0f);
         font.setColor(Color.RED);
         drawCentered("GAME OVER", 420);
 
-        // === PUNTOS FINALES ===
         font.getData().setScale(1.2f);
         font.setColor(Color.WHITE);
         drawCentered("Puntaje final: " + puntosFinales, 380);
 
         if (!nombreConfirmado) {
-            // ===== FASE 1: INGRESO DE NOMBRE =====
             font.getData().setScale(1.0f);
             font.setColor(Color.YELLOW);
             drawCentered("Ingresa tu nombre y presiona ENTER", 320);
@@ -90,12 +87,10 @@ public class GameOverScreen implements Screen {
             drawCentered("(Máx. 10 caracteres | A-Z, 0-9 | BACKSPACE para borrar)", 260);
 
         } else {
-            // ===== FASE 2: MOSTRAR VECINOS EN COLUMNA CENTRAL =====
             font.getData().setScale(1.0f);
             font.setColor(Color.ORANGE);
             drawCentered("Tu posición en el ranking", 350);
 
-            // Encontrar el índice de tu registro dentro de vecinos
             int indexSelf = -1;
             for (int i = 0; i < vecinos.size(); i++) {
                 UserPuntaje p = vecinos.get(i);
@@ -106,17 +101,12 @@ public class GameOverScreen implements Screen {
                 }
             }
 
-            float centerY = 260f;             // donde quedas tú
-            float rowStep = 24f;              // separación vertical entre filas
+            float centerY = 260f;
+            float rowStep = 24f;
 
             if (indexSelf == -1) {
-                // Por si acaso, pero no debería pasar
                 indexSelf = vecinos.size() / 2;
             }
-
-            // Queremos que tu fila quede en centerY:
-            // y = startY - i*rowStep  =>  para i=indexSelf  -> centerY
-            // => startY = centerY + indexSelf*rowStep
             float startY = centerY + indexSelf * rowStep;
 
             for (int i = 0; i < vecinos.size(); i++) {
@@ -136,7 +126,6 @@ public class GameOverScreen implements Screen {
                 drawCentered(linea, y);
             }
 
-            // Texto para volver a jugar
             font.getData().setScale(1.0f);
             font.setColor(Color.SKY);
             drawCentered("Click en cualquier parte para jugar de nuevo", 120);
@@ -160,35 +149,27 @@ public class GameOverScreen implements Screen {
     }
 
     private void actualizarNombrePorTeclado() {
-        // Letras A-Z
         for (int key = Input.Keys.A; key <= Input.Keys.Z; key++) {
             if (Gdx.input.isKeyJustPressed(key) && nombreActual.length() < 10) {
                 char c = (char) ('A' + (key - Input.Keys.A));
                 nombreActual += c;
             }
         }
-
-        // Números 0-9
         for (int key = Input.Keys.NUM_0; key <= Input.Keys.NUM_9; key++) {
             if (Gdx.input.isKeyJustPressed(key) && nombreActual.length() < 10) {
                 char c = (char) ('0' + (key - Input.Keys.NUM_0));
                 nombreActual += c;
             }
         }
-
-        // Borrar con BACKSPACE
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && nombreActual.length() > 0) {
             nombreActual = nombreActual.substring(0, nombreActual.length() - 1);
         }
 
-        // Confirmar con ENTER
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && nombreActual.length() > 0) {
             miRegistro = new UserPuntaje(nombreActual, puntosFinales);
 
-            // 1) Agregar al ranking global
             gestorRanking.agregarPuntaje(nombreActual, puntosFinales);
 
-            // 2) Obtener vecinos (incluye al propio jugador)
             vecinos = gestorRanking.getVecinos(miRegistro);
             if (vecinos == null) {
                 vecinos = new ArrayList<>();

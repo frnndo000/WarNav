@@ -25,10 +25,8 @@ public class MainMenuScreen implements Screen {
     private Texture botonJugarTexture; 
     private Rectangle botonJugarBounds; 
 
-    // Ranking
     private List<UserPuntaje> top10 = new ArrayList<>();
 
-    // Utilidad para centrar texto
     private final GlyphLayout layout = new GlyphLayout();
 
     public MainMenuScreen(final GameLluviaMenu game) {
@@ -58,7 +56,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-        // Cada vez que entras al menú, refresca el Top 10
         top10 = GestorRanking.getInstance().getTop10();
         if (top10 == null) {
             top10 = new ArrayList<>();
@@ -67,7 +64,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        // Fondo oscuro estilo arcade
         ScreenUtils.clear(0.02f, 0.02f, 0.12f, 1f);
 
         camera.update();
@@ -77,18 +73,15 @@ public class MainMenuScreen implements Screen {
 
         batch.begin();
 
-        // --- TÍTULO ---
         font.setColor(Color.CYAN);
         drawCentered(font, batch, "W A R N A V", TOP_Y, 2.2f);
 
-        // Línea bajo el título
         font.getData().setScale(1f);
         font.setColor(Color.SKY);
         layout.setText(font, "ARCADE EDITION");
         float subX = (camera.viewportWidth - layout.width) / 2f;
         font.draw(batch, "ARCADE EDITION", subX, TOP_Y - 30);
 
-        // --- CONTROLES (lado izquierdo) ---
         float leftX = 60f;
         float yLeft = TOP_Y - 80f;
 
@@ -113,8 +106,6 @@ public class MainMenuScreen implements Screen {
         yLeft -= 120F;
         font.draw(batch, "CLICK START", leftX + 90F, yLeft);
 
-
-        // --- TOP 10 (lado derecho) ---
         float rightX = 440f;
         float yRight = TOP_Y - 80f;
 
@@ -137,20 +128,17 @@ public class MainMenuScreen implements Screen {
             }
         }
 
-        // --- BOTÓN JUGAR ---
         float botonX = 50f;
         float botonY = 10f;
         botonJugarBounds.setPosition(botonX, botonY);
 
         batch.draw(botonJugarTexture, botonX, botonY, botonJugarBounds.width, botonJugarBounds.height);
 
-        // Reset al font para no dejar escalas locas a otras pantallas
         font.getData().setScale(1f);
         font.setColor(Color.WHITE);
 
         batch.end();
 
-        // --- INPUT ---
         if (Gdx.input.justTouched()) {
             Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
@@ -164,8 +152,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // Si quieres que se adapte, puedes actualizar la cámara aquí
-        // camera.setToOrtho(false, width, height);
     }
 
     @Override

@@ -47,7 +47,6 @@ public class Nave extends Entidad {
 
 	@Override
 	public void actualizar(float delta) {
-	    // Lógica del Power-Up
 	    if (municionInfinita) {
 	        tiempoPoder -= delta;
 	        if (tiempoPoder <= 0) {
@@ -57,10 +56,9 @@ public class Nave extends Entidad {
 	    }
 
 	    if (!estaHerido()) {
-	        actualizarMovimiento();
+	    	procesarInput();
 	    }
 
-	    // ... resto del código de misiles igual que antes ...
 	    for (int i = 0; i < misiles.size; i++) {
 	        Misil misil = misiles.get(i);
 	        misil.actualizar(delta);
@@ -87,7 +85,7 @@ public class Nave extends Entidad {
 		}
 	}
 
-	public void actualizarMovimiento() {
+	public void procesarInput() {
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) bounds.x -= velocidad * Gdx.graphics.getDeltaTime();
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) bounds.x += velocidad * Gdx.graphics.getDeltaTime();
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) bounds.y += velocidad * Gdx.graphics.getDeltaTime();
@@ -98,7 +96,6 @@ public class Nave extends Entidad {
 		if (bounds.y < 0) bounds.y = 0;
 		if (bounds.y > 480 - bounds.height) bounds.y = 480 - bounds.height;
 		
-		// Lógica de disparo y recarga
 		if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
 			if (municionActual > 0) {
 				disparar();
@@ -145,7 +142,6 @@ public class Nave extends Entidad {
 	    misiles.add(misil);
 	    sonidoDisparo.play();
 	    
-	    // SOLO resta munición si NO tienes el poder activo
 	    if (!municionInfinita) {
 	        municionActual--;
 	    }
@@ -153,7 +149,7 @@ public class Nave extends Entidad {
 	
 	public void activarMunicionInfinita() {
 	    municionInfinita = true;
-	    tiempoPoder = 5.0f; // Dura 5 segundos
+	    tiempoPoder = 7.0f;
 	    municionActual = MUNICION_MAXIMA; 
 	}
 	

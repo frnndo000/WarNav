@@ -14,15 +14,16 @@ public class Lluvia {
     private Sound dropSound;
     private Music rainMusic;
     private FabricaLluvia fabrica;
+    private BordePantalla zonaMortal;
     
     private float intervaloSpawnSegundos = 0.3f;
     private float probEnemigo = 0.9f;
-    private float velocidadCaidaBase = 150f;
         
     public Lluvia(FabricaLluvia fabricaInicial, Sound ss, Music mm) {
         this.rainMusic = mm;
         this.dropSound = ss;
         this.fabrica = fabricaInicial;
+        this.zonaMortal = new BordePantalla(0, -100, 800, 100);
     }
     
     public void setFabrica(FabricaLluvia nuevaFabrica) { this.fabrica = nuevaFabrica; }
@@ -52,13 +53,13 @@ public class Lluvia {
         float delta = Gdx.graphics.getDeltaTime();
         for (int i = 0; i < entidades.size; i++) {
             Entidad entidad = entidades.get(i);
-            entidad.actualizar(delta); 
-
-            if (entidad.getBounds().y + entidad.getBounds().height < 0) {
-                entidades.removeIndex(i); i--; continue;
-            }
+            entidad.actualizar(delta);
             
-            // Colisiones
+            if (entidad.getBounds().overlaps(zonaMortal.getBounds())) {
+                entidades.removeIndex(i); 
+                i--; 
+                continue;
+            }
             if (entidad.getBounds().overlaps(nave.getBounds())) {
                 
                 if (entidad instanceof Enemigo) {
@@ -70,7 +71,6 @@ public class Lluvia {
                     dropSound.play();
                 
                 } else if (entidad instanceof Mejora) {
-                    // --- LÓGICA UNIFICADA DE MEJORAS ---
                     Mejora m = (Mejora) entidad;
                     if (m.getTipo() == Mejora.TIPO_VIDA) {
                         nave.agregarVida();
@@ -86,6 +86,18 @@ public class Lluvia {
         } 
         return true;
     }
+    
+    public void cambiarMusica(Music nuevaMusica) {
+        if (this.rainMusic != null) {
+            this.rainMusic.stop();
+            this.rainMusic.dispose();
+        }
+
+        this.rainMusic = nuevaMusica;
+
+        this.rainMusic.setLooping(true);
+        this.rainMusic.play();
+    }
 
     public void actualizarDibujoLluvia(SpriteBatch batch) { 
         for (Entidad entidad : entidades) entidad.dibujar(batch);
@@ -93,7 +105,6 @@ public class Lluvia {
     
     public void setIntervaloSpawn(float segundos) { this.intervaloSpawnSegundos = segundos; }
     public void setProbEnemigo(float prob) { this.probEnemigo = MathUtils.clamp(prob, 0f, 1f); }
-    public void setVelocidadCaidaBase(float vel) { this.velocidadCaidaBase = vel; }
     public void destruir() { dropSound.dispose(); rainMusic.dispose(); }
     public void pausar() { rainMusic.stop(); }
     public void continuar() { rainMusic.play(); }

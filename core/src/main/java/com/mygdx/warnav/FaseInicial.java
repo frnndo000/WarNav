@@ -1,9 +1,5 @@
 package com.mygdx.warnav;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-
 public class FaseInicial extends FaseJuego {
 
 	@Override
@@ -18,13 +14,7 @@ public class FaseInicial extends FaseJuego {
     }
 
     @Override
-    protected void configurarVelocidades(Nave nave, Lluvia lluvia) {
-        lluvia.setVelocidadCaidaBase(250f);
-    }
-
-    @Override
-    protected void configurarEfectosSonido() {
-        // Música intensa, etc.
+    protected void configurarEfectosSonido(Lluvia lluvia) {
     }
 }
 

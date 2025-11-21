@@ -5,11 +5,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Entidad implements Colisionable {
-	// protected para que las clases hijas puedan acceder a ellas
 	protected Texture texture;
     protected Rectangle bounds;
     
-    // constructor
     public Entidad(Texture texture) {
         this.texture = texture;
         this.bounds = new Rectangle();
@@ -17,7 +15,6 @@ public abstract class Entidad implements Colisionable {
         this.bounds.height = texture.getHeight();
     }
     
-    // metodos abstractos
     
     /**
      * Actualiza la lógica de la entidad (movimiento, IA, etc.)
@@ -36,6 +33,5 @@ public abstract class Entidad implements Colisionable {
     }
     
     public void destruir() {
-    	texture.dispose();
     }
 }

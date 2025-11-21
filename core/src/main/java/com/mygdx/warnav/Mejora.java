@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Mejora extends Entidad {
-    // Constantes para identificar el tipo
     public static final int TIPO_MUNICION = 1;
     public static final int TIPO_VIDA = 2;
 
@@ -17,7 +16,6 @@ public class Mejora extends Entidad {
         this.bounds.width = 40;
         this.bounds.height = 40;
         
-        // Si es vida, que caiga un poco más rápido para dificultar
         if (tipo == TIPO_VIDA) {
             this.velocidad = 250;
         }
@@ -31,10 +29,6 @@ public class Mejora extends Entidad {
     @Override
     public void dibujar(SpriteBatch batch) {
         batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
-    }
-    
-    public boolean estaFueraDePantalla() {
-         return this.bounds.y + this.bounds.height < 0;
     }
     
     public int getTipo() {

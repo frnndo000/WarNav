@@ -17,18 +17,15 @@ public class Misil extends Entidad {
 	
 	@Override
     public void actualizar(float delta) {
-        // mueve el misil hacia arriba
         this.bounds.y += velocidad * delta;
     }
 	
 	@Override
     public void dibujar(SpriteBatch batch) {
-        // dibuja el misil
         batch.draw(texture, bounds.x, bounds.y);
     }
     
-    // metodo para saber si el misil salio de la pantalla
     public boolean estaFueraDePantalla() {
-        return this.bounds.y > 480; // 480 es el alto de tu pantalla
+        return this.bounds.y > 480;
     }
 }

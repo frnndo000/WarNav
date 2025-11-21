@@ -18,7 +18,6 @@ public class GestorRanking {
         puntajesAltos = new ArrayList<>();
         this.MAX_ENTRADAS = maxEntradas;
         
-        // Sembrar puntajes iniciales de NPCs espaciales
         cargarPuntajesIniciales();
     }
 
@@ -30,7 +29,6 @@ public class GestorRanking {
     }
 
     private void cargarPuntajesIniciales() {
-        // Puedes usar agregarPuntaje para respetar el orden y el límite
         agregarPuntaje("CAPITAN ORION",      15000);
         agregarPuntaje("NOVA DRIFTER",       12000);
         agregarPuntaje("COMANDANTE VEGA",    9800);
@@ -47,10 +45,8 @@ public class GestorRanking {
         UserPuntaje nuevo = new UserPuntaje(nombre, puntos);
         puntajesAltos.add(nuevo);
 
-        // ordenar de mayor a menor
         puntajesAltos.sort((p1, p2) -> Integer.compare(p2.getPuntos(), p1.getPuntos()));
 
-        // recortar al máximo de entradas
         if (puntajesAltos.size() > MAX_ENTRADAS) {
             puntajesAltos = new ArrayList<>(puntajesAltos.subList(0, MAX_ENTRADAS));
         }
@@ -68,7 +64,6 @@ public class GestorRanking {
 
         int puntosActual = actual.getPuntos();
 
-        // Recorremos desde el final hacia el inicio
         for (int i = puntajesAltos.size() - 1; i >= 0; i--) {
             UserPuntaje p = puntajesAltos.get(i);
             if (p.getPuntos() > puntosActual) {
@@ -76,7 +71,6 @@ public class GestorRanking {
             }
         }
 
-        // Nadie tiene más puntos que el actual
         return null;
     }
 
@@ -85,7 +79,6 @@ public class GestorRanking {
             return Collections.emptyList();
         }
 
-        // Buscar por nombre + puntos (no por referencia de objeto)
         int index = -1;
         for (int i = 0; i < puntajesAltos.size(); i++) {
             UserPuntaje p = puntajesAltos.get(i);
@@ -100,7 +93,6 @@ public class GestorRanking {
             return Collections.emptyList();
         }
 
-        // Queremos: 3 arriba y 2 abajo
         int from = Math.max(0, index - 3);
         int to   = Math.min(puntajesAltos.size() - 1, index + 2);
 

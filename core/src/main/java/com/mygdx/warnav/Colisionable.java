@@ -9,7 +9,4 @@ public interface Colisionable {
      * @return El Rectangle del objeto.
      */
     public Rectangle getBounds();
-    
-    // Más adelante podríamos añadir:
-    // public void alColisionar(Colisionable otro);
 }

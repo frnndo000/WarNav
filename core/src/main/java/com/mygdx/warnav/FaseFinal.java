@@ -1,6 +1,7 @@
 package com.mygdx.warnav;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
@@ -21,15 +22,12 @@ public class FaseFinal extends FaseJuego {
         lluvia.setProbEnemigo(0.9f);
         lluvia.setIntervaloSpawn(0.05f);
     }
-
+    
     @Override
-    protected void configurarVelocidades(Nave nave, Lluvia lluvia) {
-        lluvia.setVelocidadCaidaBase(600f);
-    }
-
-    @Override
-    protected void configurarEfectosSonido() {
-        // Música intensa, etc.
+    protected void configurarEfectosSonido(Lluvia lluvia) {
+        Music musicaBoss = Gdx.audio.newMusic(Gdx.files.internal("musica_final.mp3"));
+        
+        lluvia.cambiarMusica(musicaBoss);
     }
 }
 

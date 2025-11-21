@@ -20,21 +20,18 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private BitmapFont font;
     
-    private BordePantalla bordeInferior;
     private Nave nave;
     private Lluvia lluvia;
     private GestorFases gestorFases;
     private GestorRanking gestorRanking;
 
-    // Texturas
     private Texture misilTexture;
     private Texture soldadoTexture;
     private Texture enemigoTexture;
     private Texture naveTexture; 
     private Texture powerUpTexture; 
     private Texture vidaTexture;
-    
-    // Sonidos
+
     private Sound sonidoDisparo;
     private Sound hurtSound;
     private Sound sonidoRecarga;
@@ -42,10 +39,8 @@ public class GameScreen implements Screen {
     private Music rainMusic;
     private Sound sonidoExplosion;
 
-    // Configuración dinámica del fondo
     private float bgR = 0f, bgG = 0f, bgB = 0.2f;   
 
-    // Fondo de estrellas
     static class Star { float x, y, speed, size; }
     private Texture starTex;
     private Star[] starsFar, starsMid, starsNear;
@@ -53,7 +48,6 @@ public class GameScreen implements Screen {
     private float starsMidSpeed  = 0.5f;
     private float starsNearSpeed = 1.0f;
 
-    // Ranking / objetivo
     private UserPuntaje objetivoActual;
 
     public GameScreen(final GameLluviaMenu game) {
@@ -61,15 +55,13 @@ public class GameScreen implements Screen {
         this.batch = game.getBatch();
         this.font = game.getFont();
 
-        // 1. Cargar Texturas
         misilTexture = new Texture(Gdx.files.internal("misil.png"));
         soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
         enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
         naveTexture = new Texture(Gdx.files.internal("nave.png"));
         powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png"));
         vidaTexture = new Texture(Gdx.files.internal("vida.png"));
-        bordeInferior = new BordePantalla(0, -50, 800, 50);
-        // 2. Cargar Sonidos
+        
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
         sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
@@ -77,35 +69,27 @@ public class GameScreen implements Screen {
         rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
         sonidoExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
 
-        // 3. Crear Nave
         nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
         nave.crear();
 
-        // 4. Crear Lluvia con Abstract Factory (Nivel 1 por defecto)
         FabricaLluvia fabricaInicial = new FabricaLluvia.Nivel1(enemigoTexture, soldadoTexture);
         lluvia = new Lluvia(fabricaInicial, sonidoRescate, rainMusic);
         lluvia.crear();
 
-        // Camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
 
-        // Fondo estelar
         crearEstrellas();
 
-        // Singletons
         gestorRanking = GestorRanking.getInstance();
         gestorFases = new GestorFases();
     }
 
-    // --- Getters para que las Fases accedan a las texturas ---
     public Texture getEnemigoTexture() { return enemigoTexture; }
     public Texture getSoldadoTexture() { return soldadoTexture; }
     public Texture getPowerUpTexture() { return powerUpTexture; }
     public Texture getVidaTexture() { return vidaTexture; }
     
-    // ---------------------------------------------------------
-
     private void crearEstrellas() {
         Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
         pm.setColor(1, 1, 1, 1);
@@ -153,7 +137,7 @@ public class GameScreen implements Screen {
                 if (entidad instanceof Enemigo) {
                     if (misil.getBounds().overlaps(entidad.getBounds())) {
                         sonidoExplosion.play();
-                        nave.sumarPuntos(1); // Ajusta puntos si quieres
+                        nave.sumarPuntos(1);
                         misiles.removeIndex(i);
                         entidades.removeIndex(j);
                         i--; 
@@ -173,7 +157,6 @@ public class GameScreen implements Screen {
         nave.actualizar(delta);
 
         if (!nave.estaHerido()) {
-            // check if game over
             if (!lluvia.actualizarMovimiento(nave)) {
                 if (game.getHigherScore() < nave.getPuntos())
                     game.setHigherScore(nave.getPuntos());
@@ -184,31 +167,26 @@ public class GameScreen implements Screen {
             }
         }
         
-        // Actualizar fases (AQUÍ OCURRE LA MAGIA DE NIVEL 1 -> NIVEL 2)
         gestorFases.actualizarFaseSegunPuntos(nave.getPuntos(), nave, lluvia, this);
 
         revisarColisiones();
 
-        // Ranking objetivo
         objetivoActual = gestorRanking.getSiguienteObjetivo(
                 new UserPuntaje("JugadorActual", nave.getPuntos())
         );
 
         batch.begin();
 
-        // Fondo estrellas
         updateAndDrawStars(starsFar,  starsFarSpeed);
         updateAndDrawStars(starsMid,  starsMidSpeed);
         updateAndDrawStars(starsNear, starsNearSpeed);
 
-        // HUD
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
         font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
         font.draw(batch, "Munición: " + nave.getMunicionActual() + " / " + nave.getMunicionMaxima(), 5, 25);
 
-        // HUD Objetivo
         font.setColor(Color.CYAN);
         font.getData().setScale(0.95f);
         if (objetivoActual != null) {
@@ -238,7 +216,6 @@ public class GameScreen implements Screen {
     }
     
     public void setEnemigoTexture(Texture tt) {
-        // Opción para cambiar textura en tiempo real si quisieras
         this.enemigoTexture = tt;
     }
 
