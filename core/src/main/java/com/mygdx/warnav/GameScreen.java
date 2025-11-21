@@ -14,12 +14,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public class GameScreen implements Screen {
-
+	
     final GameLluviaMenu game;
     private OrthographicCamera camera;
     private SpriteBatch batch;
     private BitmapFont font;
     
+    private BordePantalla bordeInferior;
     private Nave nave;
     private Lluvia lluvia;
     private GestorFases gestorFases;
@@ -67,7 +68,7 @@ public class GameScreen implements Screen {
         naveTexture = new Texture(Gdx.files.internal("nave.png"));
         powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png"));
         vidaTexture = new Texture(Gdx.files.internal("vida.png"));
-
+        bordeInferior = new BordePantalla(0, -50, 800, 50);
         // 2. Cargar Sonidos
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 

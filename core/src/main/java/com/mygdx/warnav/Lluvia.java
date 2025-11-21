@@ -52,13 +52,12 @@ public class Lluvia {
         float delta = Gdx.graphics.getDeltaTime();
         for (int i = 0; i < entidades.size; i++) {
             Entidad entidad = entidades.get(i);
-            entidad.getBounds().y -= velocidadCaidaBase * delta;
+            entidad.actualizar(delta); 
 
-            // Limpieza fuera de pantalla
             if (entidad.getBounds().y + entidad.getBounds().height < 0) {
                 entidades.removeIndex(i); i--; continue;
             }
-
+            
             // Colisiones
             if (entidad.getBounds().overlaps(nave.getBounds())) {
                 
