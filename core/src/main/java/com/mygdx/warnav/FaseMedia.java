@@ -17,13 +17,14 @@ public class FaseMedia extends FaseJuego {
 
     // Este método se llama desde GestorFases cuando entras en la fase media
     public void aplicarCambioFabrica(Lluvia lluvia, GameScreen screen) {
-        //Creamos la fábrica con todas las texturas necesarias
+        // Pasamos las 6 texturas ahora
         FabricaLluvia fabricaNivel2 = new FabricaLluvia.Nivel2(
             screen.getEnemigoTexture(),
             screen.getSoldadoTexture(),
             screen.getPowerUpTexture(),
             screen.getVidaTexture(),
-            screen.getMultiplicadorTexture() 
+            screen.getMultiplicadorTexture(),
+            screen.getLaserTexture() 
         );
         
         lluvia.setFabrica(fabricaNivel2);

@@ -7,6 +7,7 @@ public class Mejora extends Entidad {
     public static final int TIPO_MUNICION = 1;
     public static final int TIPO_VIDA = 2;
     public static final int TIPO_PUNTOS_DOBLES = 3;
+    public static final int TIPO_LASER = 4;
 
     private int tipo;
     private int velocidad = 200; 

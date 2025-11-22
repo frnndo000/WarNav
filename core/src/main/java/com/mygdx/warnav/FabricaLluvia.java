@@ -30,23 +30,22 @@ public interface FabricaLluvia {
         private Texture texSoldado;
         private Texture texMunicion;
         private Texture texVida;
-        private Texture texPuntos; 
+        private Texture texPuntos;
+        private Texture texLaser; 
 
-        public Nivel2(Texture texEnemigo, Texture texSoldado, Texture texMunicion, Texture texVida, Texture texPuntos) {
+        public Nivel2(Texture texEnemigo, Texture texSoldado, Texture texMunicion, Texture texVida, Texture texPuntos, Texture texLaser) {
             this.texEnemigo = texEnemigo;
             this.texSoldado = texSoldado;
             this.texMunicion = texMunicion;
             this.texVida = texVida;
-            this.texPuntos = texPuntos; 
+            this.texPuntos = texPuntos;
+            this.texLaser = texLaser; 
         }
 
         @Override
         public Entidad crearEnemigo() { 
-            if (MathUtils.randomBoolean()) {
-                return new Enemigo(texEnemigo, new MovimientoZigZag(200f));
-            } else {
-                return new Enemigo(texEnemigo, new MovimientoRecto(450f));
-            }
+             if (MathUtils.randomBoolean()) return new Enemigo(texEnemigo, new MovimientoZigZag(200f));
+             else return new Enemigo(texEnemigo, new MovimientoRecto(450f));
         }
 
         @Override
@@ -54,19 +53,14 @@ public interface FabricaLluvia {
             float random = MathUtils.random();
 
             if (random < 0.10f) { 
-                // 10% Vida
                 return new Mejora(texVida, Mejora.TIPO_VIDA);
-                
             } else if (random < 0.25f) { 
-                // 15% Munición
                 return new Mejora(texMunicion, Mejora.TIPO_MUNICION);
-                
             } else if (random < 0.40f) {
-                // 15% PUNTOS DOBLES
                 return new Mejora(texPuntos, Mejora.TIPO_PUNTOS_DOBLES);
-                
+            } else if (random < 0.45f) { 
+                return new Mejora(texLaser, Mejora.TIPO_LASER);
             } else {
-                // 60% Soldado
                 return new Soldado(texSoldado);
             }
         }

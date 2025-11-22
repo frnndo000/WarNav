@@ -25,20 +25,24 @@ public class GameScreen implements Screen {
     private GestorFases gestorFases;
     private GestorRanking gestorRanking;
 
+    // --- TEXTURAS ---
     private Texture misilTexture;
     private Texture soldadoTexture;
     private Texture enemigoTexture;
     private Texture naveTexture; 
-    private Texture powerUpTexture; 
-    private Texture vidaTexture;
-    private Texture multiplicadorTexture; 
+    private Texture powerUpTexture;      
+    private Texture vidaTexture;         
+    private Texture multiplicadorTexture;
+    private Texture laserTexture;        
 
+    // --- SONIDOS ---
     private Sound sonidoDisparo;
     private Sound hurtSound;
     private Sound sonidoRecarga;
     private Sound sonidoRescate;
     private Music rainMusic;
     private Sound sonidoExplosion;
+    private Sound sonidoLaser;
 
     private float bgR = 0f, bgG = 0f, bgB = 0.2f;   
 
@@ -56,23 +60,26 @@ public class GameScreen implements Screen {
         this.batch = game.getBatch();
         this.font = game.getFont();
 
-        // Carga de Texturas
+        //CARGAR TODAS LAS IMÁGENES
         misilTexture = new Texture(Gdx.files.internal("misil.png"));
         soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
         enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
         naveTexture = new Texture(Gdx.files.internal("nave.png"));
-        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png")); // Tu munición
+        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png")); 
         vidaTexture = new Texture(Gdx.files.internal("vida.png"));
-        multiplicadorTexture = new Texture(Gdx.files.internal("multiplicador.png")); 
-        
-        // Carga de Sonidos
+        multiplicadorTexture = new Texture(Gdx.files.internal("multiplicador.png"));
+        laserTexture = new Texture(Gdx.files.internal("laser.png")); 
+
+        //CARGAR SONIDOS
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
         sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
         sonidoRecarga = Gdx.audio.newSound(Gdx.files.internal("recarga.wav"));
         rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
         sonidoExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
+        sonidoLaser = Gdx.audio.newSound(Gdx.files.internal("laser.mp3"));
 
+        // INICIALIZAR OBJETOS
         nave = new Nave(naveTexture, misilTexture, hurtSound, sonidoDisparo, sonidoRecarga);
         nave.crear();
 
@@ -89,13 +96,15 @@ public class GameScreen implements Screen {
         gestorFases = new GestorFases();
     }
 
-    // Getters
+    //GETTERS 
     public Texture getEnemigoTexture() { return enemigoTexture; }
     public Texture getSoldadoTexture() { return soldadoTexture; }
     public Texture getPowerUpTexture() { return powerUpTexture; }
     public Texture getVidaTexture() { return vidaTexture; }
     public Texture getMultiplicadorTexture() { return multiplicadorTexture; }
-    
+    public Texture getLaserTexture() { return laserTexture; } 
+
+    // -------------------------------------------------
 
     private void crearEstrellas() {
         Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
@@ -155,14 +164,18 @@ public class GameScreen implements Screen {
     
     @Override
     public void render(float delta) {
+        // Tecla ESC para pausar
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             pause(); 
             return; 
         }
+
         ScreenUtils.clear(bgR, bgG, bgB, 1f);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
         nave.actualizar(delta);
+
         if (!nave.estaHerido()) {
             if (!lluvia.actualizarMovimiento(nave)) {
                 if (game.getHigherScore() < nave.getPuntos()) game.setHigherScore(nave.getPuntos());
@@ -171,18 +184,22 @@ public class GameScreen implements Screen {
                 return;
             }
         }
+        
         gestorFases.actualizarFaseSegunPuntos(nave.getPuntos(), nave, lluvia, this);
         revisarColisiones();
         objetivoActual = gestorRanking.getSiguienteObjetivo(new UserPuntaje("JugadorActual", nave.getPuntos()));
+
         batch.begin();
         updateAndDrawStars(starsFar,  starsFarSpeed);
         updateAndDrawStars(starsMid,  starsMidSpeed);
         updateAndDrawStars(starsNear, starsNearSpeed);
+
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
         font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
         font.draw(batch, "Munición: " + nave.getMunicionActual() + " / " + nave.getMunicionMaxima(), 5, 25);
+
         font.setColor(Color.CYAN);
         font.getData().setScale(0.95f);
         if (objetivoActual != null) {
@@ -191,8 +208,10 @@ public class GameScreen implements Screen {
         } else {
             font.draw(batch, "Objetivo: ¡Ya eres #1 del ranking!", 5, 450);
         }
+
         nave.dibujar(batch);
         lluvia.actualizarDibujoLluvia(batch);
+        
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
         batch.end();
@@ -212,13 +231,17 @@ public class GameScreen implements Screen {
     public void dispose() {
         nave.destruir();
         lluvia.destruir();
+        
+        // Limpiar texturas
         misilTexture.dispose();
         soldadoTexture.dispose();
         enemigoTexture.dispose();
         naveTexture.dispose();
         powerUpTexture.dispose();
         vidaTexture.dispose();
-        multiplicadorTexture.dispose(); 
+        multiplicadorTexture.dispose();
+        laserTexture.dispose(); 
+        
         if (starTex != null) starTex.dispose();
         sonidoDisparo.dispose();
         hurtSound.dispose();
@@ -226,5 +249,6 @@ public class GameScreen implements Screen {
         sonidoRescate.dispose();
         rainMusic.dispose();
         sonidoExplosion.dispose();
+        sonidoLaser.dispose();
     }
 }

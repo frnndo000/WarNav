@@ -14,13 +14,8 @@ public class Lluvia {
     private long lastDropTime;
     private Sound dropSound;
     private Music rainMusic;
-    
-    // Referencia a la Fábrica Abstracta
     private FabricaLluvia fabrica;
-    
-    // Objeto para matar entidades que salen de pantalla
     private BordePantalla zonaMortal;
-    
     private float intervaloSpawnSegundos = 0.3f;
     private float probEnemigo = 0.9f;
     private float velocidadCaidaBase = 150f;
@@ -30,11 +25,9 @@ public class Lluvia {
         this.dropSound = ss;
         this.fabrica = fabricaInicial;
         
-        // Crea una zona invisible abajo de la pantalla para limpiar memoria
         this.zonaMortal = new BordePantalla(0, -100, 800, 100);
     }
     
-    // Método para cambiar la fábrica (Nivel 1 -> Nivel 2)
     public void setFabrica(FabricaLluvia nuevaFabrica) {
         this.fabrica = nuevaFabrica;
     }
@@ -56,7 +49,6 @@ public class Lluvia {
             nuevaEntidad = fabrica.crearRecompensa();
         }
 
-        // Posición aleatoria en X, arriba en Y (480)
         nuevaEntidad.getBounds().x = MathUtils.random(0, 800 - nuevaEntidad.getBounds().width);
         nuevaEntidad.getBounds().y = 480;
         
@@ -65,7 +57,6 @@ public class Lluvia {
     }
     
     public boolean actualizarMovimiento(Nave nave) { 
-        // 1. Generar nuevos objetos según el tiempo
         long intervaloNanos = (long) (intervaloSpawnSegundos * 1_000_000_000L);
         if (TimeUtils.nanoTime() - lastDropTime > intervaloNanos) {
             spawnEntidad();
@@ -73,33 +64,38 @@ public class Lluvia {
 
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 2. Mover y verificar colisiones
         for (int i = 0; i < entidades.size; i++) {
             Entidad entidad = entidades.get(i);
             
-            // Actualizar posición (polimorfismo: cada entidad sabe cómo moverse)
             entidad.actualizar(delta);
 
-            // A. Verificar si salió de la pantalla (zona mortal)
             if (entidad.getBounds().overlaps(zonaMortal.getBounds())) {
                 entidades.removeIndex(i); 
                 i--; 
                 continue;
             }
 
-            // B. Verificar colisión con la Nave
+            if (nave.isLaserActivo() && entidad instanceof Enemigo) {
+                if (entidad.getBounds().overlaps(nave.getLaserBounds())) {
+
+                    nave.sumarPuntos(5); 
+                    entidades.removeIndex(i);
+                    i--;
+                    continue; 
+                }
+            }
+
             if (entidad.getBounds().overlaps(nave.getBounds())) {
                 
                 if (entidad instanceof Enemigo) {
                     nave.dañar();
-                    if (nave.getVidas() <= 0) return false; // Fin del juego
+                    if (nave.getVidas() <= 0) return false;
                 
                 } else if (entidad instanceof Soldado) { 
                     nave.sumarPuntos(100);
                     dropSound.play();
                 
                 } else if (entidad instanceof Mejora) {
-                    // --- DETECCIÓN DE LOS 3 POWER-UPS ---
                     Mejora m = (Mejora) entidad;
                     
                     if (m.getTipo() == Mejora.TIPO_VIDA) {
@@ -108,17 +104,19 @@ public class Lluvia {
                         nave.activarMunicionInfinita();
                     } else if (m.getTipo() == Mejora.TIPO_PUNTOS_DOBLES) {
                         nave.activarPuntosDobles();
+                    } 
+                    else if (m.getTipo() == Mejora.TIPO_LASER) {
+                        nave.activarLaser();
                     }
                     
                     dropSound.play();
                 }
                 
-                // Eliminar objeto tras chocar
                 entidades.removeIndex(i);
                 i--;
             }
         } 
-        return true; // El juego continúa
+        return true; 
     }
 
     public void cambiarMusica(Music nuevaMusica) {
@@ -136,7 +134,7 @@ public class Lluvia {
         }
     }
     
-    // Getters y Setters de configuración
+    // Getters y Setters
     public void setIntervaloSpawn(float segundos) { this.intervaloSpawnSegundos = segundos; }
     public void setProbEnemigo(float prob) { this.probEnemigo = MathUtils.clamp(prob, 0f, 1f); }
     public void setVelocidadCaidaBase(float vel) { this.velocidadCaidaBase = vel; }
