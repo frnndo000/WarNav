@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Mejora extends Entidad {
     public static final int TIPO_MUNICION = 1;
     public static final int TIPO_VIDA = 2;
+    public static final int TIPO_PUNTOS_DOBLES = 3;
 
     private int tipo;
     private int velocidad = 200; 

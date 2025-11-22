@@ -10,16 +10,20 @@ public class FaseMedia extends FaseJuego {
 
     @Override
     protected void configurarEnemigos(Lluvia lluvia) {
-        lluvia.setProbEnemigo(0.8f);
-        lluvia.setIntervaloSpawn(0.25f);
+        // Ajustamos dificultad para que se vean los premios
+        lluvia.setProbEnemigo(0.7f);
+        lluvia.setIntervaloSpawn(0.20f);
     }
 
+    // Este método se llama desde GestorFases cuando entras en la fase media
     public void aplicarCambioFabrica(Lluvia lluvia, GameScreen screen) {
+        //Creamos la fábrica con todas las texturas necesarias
         FabricaLluvia fabricaNivel2 = new FabricaLluvia.Nivel2(
             screen.getEnemigoTexture(),
             screen.getSoldadoTexture(),
             screen.getPowerUpTexture(),
-            screen.getVidaTexture()
+            screen.getVidaTexture(),
+            screen.getMultiplicadorTexture() 
         );
         
         lluvia.setFabrica(fabricaNivel2);

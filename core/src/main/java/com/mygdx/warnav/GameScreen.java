@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public class GameScreen implements Screen {
-	
+    
     final GameLluviaMenu game;
     private OrthographicCamera camera;
     private SpriteBatch batch;
@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
     private Texture naveTexture; 
     private Texture powerUpTexture; 
     private Texture vidaTexture;
+    private Texture multiplicadorTexture; 
 
     private Sound sonidoDisparo;
     private Sound hurtSound;
@@ -55,13 +56,16 @@ public class GameScreen implements Screen {
         this.batch = game.getBatch();
         this.font = game.getFont();
 
+        // Carga de Texturas
         misilTexture = new Texture(Gdx.files.internal("misil.png"));
         soldadoTexture = new Texture(Gdx.files.internal("soldado.png"));
         enemigoTexture = new Texture(Gdx.files.internal("enemigo.png"));
         naveTexture = new Texture(Gdx.files.internal("nave.png"));
-        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png"));
+        powerUpTexture = new Texture(Gdx.files.internal("MAXAMO.png")); // Tu munición
         vidaTexture = new Texture(Gdx.files.internal("vida.png"));
+        multiplicadorTexture = new Texture(Gdx.files.internal("multiplicador.png")); 
         
+        // Carga de Sonidos
         hurtSound = Gdx.audio.newSound(Gdx.files.internal("hurt.ogg"));
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("disparo.wav")); 
         sonidoRescate = Gdx.audio.newSound(Gdx.files.internal("rescate.mp3"));
@@ -85,18 +89,20 @@ public class GameScreen implements Screen {
         gestorFases = new GestorFases();
     }
 
+    // Getters
     public Texture getEnemigoTexture() { return enemigoTexture; }
     public Texture getSoldadoTexture() { return soldadoTexture; }
     public Texture getPowerUpTexture() { return powerUpTexture; }
     public Texture getVidaTexture() { return vidaTexture; }
+    public Texture getMultiplicadorTexture() { return multiplicadorTexture; }
     
+
     private void crearEstrellas() {
         Pixmap pm = new Pixmap(2, 2, Pixmap.Format.RGBA8888);
         pm.setColor(1, 1, 1, 1);
         pm.fill();
         starTex = new Texture(pm);
         pm.dispose();
-
         starsFar  = createStarLayer(120, 0.15f, 0.35f, 0.8f, 1.2f);
         starsMid  = createStarLayer(80,  0.40f, 0.80f, 1.0f, 1.8f);
         starsNear = createStarLayer(50,  0.60f, 0.90f, 1.4f, 2.2f);
@@ -125,11 +131,10 @@ public class GameScreen implements Screen {
             batch.draw(starTex, s.x, s.y, s.size, s.size);
         }
     }
-
+    
     private void revisarColisiones() {
         Array<Misil> misiles = nave.getMisiles();
         Array<Entidad> entidades = lluvia.getEntidades();
-
         for (int i = 0; i < misiles.size; i++) {
             Misil misil = misiles.get(i);
             for (int j = 0; j < entidades.size; j++) {
@@ -147,101 +152,60 @@ public class GameScreen implements Screen {
             }
         }
     }
-
+    
     @Override
     public void render(float delta) {
-        // --- 1. NUEVO: DETECCION DE PAUSA (Tecla ESC) ---
-        // Usamos la ruta completa de Input.Keys por si no tienes el import hecho
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
-            pause(); // Llama a tu método pause() que cambia de pantalla
-            return;  // Importante: deja de ejecutar este frame
+            pause(); 
+            return; 
         }
-        // ------------------------------------------------
-
         ScreenUtils.clear(bgR, bgG, bgB, 1f);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
         nave.actualizar(delta);
-
         if (!nave.estaHerido()) {
             if (!lluvia.actualizarMovimiento(nave)) {
-                if (game.getHigherScore() < nave.getPuntos())
-                    game.setHigherScore(nave.getPuntos());
-                
+                if (game.getHigherScore() < nave.getPuntos()) game.setHigherScore(nave.getPuntos());
                 game.setScreen(new GameOverScreen(game, nave.getPuntos()));
                 dispose();
                 return;
             }
         }
-        
         gestorFases.actualizarFaseSegunPuntos(nave.getPuntos(), nave, lluvia, this);
-
         revisarColisiones();
-
-        objetivoActual = gestorRanking.getSiguienteObjetivo(
-                new UserPuntaje("JugadorActual", nave.getPuntos())
-        );
-
+        objetivoActual = gestorRanking.getSiguienteObjetivo(new UserPuntaje("JugadorActual", nave.getPuntos()));
         batch.begin();
-
-        // Fondo de estrellas
         updateAndDrawStars(starsFar,  starsFarSpeed);
         updateAndDrawStars(starsMid,  starsMidSpeed);
         updateAndDrawStars(starsNear, starsNearSpeed);
-
-        // HUD Info
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         font.draw(batch, "Puntos: " + nave.getPuntos(), 5, 475);
         font.draw(batch, "Vidas : " + nave.getVidas(), 670, 475);
         font.draw(batch, "Munición: " + nave.getMunicionActual() + " / " + nave.getMunicionMaxima(), 5, 25);
-
-        // HUD Ranking
         font.setColor(Color.CYAN);
         font.getData().setScale(0.95f);
         if (objetivoActual != null) {
-            String textoObjetivo = "Objetivo: " + objetivoActual.getNombreJugador() 
-                    + " (" + objetivoActual.getPuntos() + " pts)";
+            String textoObjetivo = "Objetivo: " + objetivoActual.getNombreJugador() + " (" + objetivoActual.getPuntos() + " pts)";
             font.draw(batch, textoObjetivo, 5, 450);
         } else {
             font.draw(batch, "Objetivo: ¡Ya eres #1 del ranking!", 5, 450);
         }
-
-        // Dibujar juego
         nave.dibujar(batch);
         lluvia.actualizarDibujoLluvia(batch);
-
-        // Resetear fuente
         font.getData().setScale(1.0f);
         font.setColor(Color.WHITE);
         batch.end();
     }
-    
-    public void setFondoColor(float r, float g, float b) {
-        this.bgR = r; this.bgG = g; this.bgB = b;
-    }
-    
-    public void setVelocidadEstrellas(float far, float mid, float near) {
-        this.starsFarSpeed  = far;
-        this.starsMidSpeed  = mid;
-        this.starsNearSpeed = near;
-    }
-    
-    public void setEnemigoTexture(Texture tt) {
-        this.enemigoTexture = tt;
-    }
+
+    public void setFondoColor(float r, float g, float b) { this.bgR = r; this.bgG = g; this.bgB = b; }
+    public void setVelocidadEstrellas(float far, float mid, float near) { this.starsFarSpeed  = far; this.starsMidSpeed  = mid; this.starsNearSpeed = near; }
+    public void setEnemigoTexture(Texture tt) { this.enemigoTexture = tt; }
 
     @Override public void resize(int width, int height) {}
     @Override public void show() { lluvia.continuar(); }
     @Override public void hide() {}
-    
-    @Override
-    public void pause() {
-        lluvia.pausar();
-        game.setScreen(new PausaScreen(game, this));
-    }
-
+    @Override public void pause() { lluvia.pausar(); game.setScreen(new PausaScreen(game, this)); }
     @Override public void resume() {}
 
     @Override
@@ -253,6 +217,8 @@ public class GameScreen implements Screen {
         enemigoTexture.dispose();
         naveTexture.dispose();
         powerUpTexture.dispose();
+        vidaTexture.dispose();
+        multiplicadorTexture.dispose(); 
         if (starTex != null) starTex.dispose();
         sonidoDisparo.dispose();
         hurtSound.dispose();
@@ -260,6 +226,5 @@ public class GameScreen implements Screen {
         sonidoRescate.dispose();
         rainMusic.dispose();
         sonidoExplosion.dispose();
-        vidaTexture.dispose();
     }
 }

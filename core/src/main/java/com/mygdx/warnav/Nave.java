@@ -21,6 +21,8 @@ public class Nave extends Entidad {
 	private final int MUNICION_MAXIMA = 12;
 	private boolean municionInfinita = false;
 	private float tiempoPoder = 0;
+	private boolean puntosDobles = false;
+	private float tiempoPuntosDobles = 0;
 	private int municionActual;
 	private Sound sonidoDisparo;
 	private Sound sonidoRecarga; 
@@ -53,6 +55,13 @@ public class Nave extends Entidad {
 	            municionInfinita = false;
 	            System.out.println("¡Munición infinita terminada!");
 	        }
+	    if (puntosDobles) {
+	    	tiempoPuntosDobles -= delta;
+	        if (tiempoPuntosDobles <= 0) {
+	            puntosDobles = false;
+	            System.out.println("¡Fin de Puntos Dobles!");
+	            }
+	        }    
 	    }
 
 	    if (!estaHerido()) {
@@ -124,7 +133,11 @@ public class Nave extends Entidad {
 	}
 
 	public void sumarPuntos(int pp) {
-		puntos += pp;
+	    if (puntosDobles) {
+	        puntos += pp * 2;
+	    } else {
+	        puntos += pp;
+	    }
 	}
 
 	public void dañar() {
@@ -151,6 +164,11 @@ public class Nave extends Entidad {
 	    municionInfinita = true;
 	    tiempoPoder = 7.0f;
 	    municionActual = MUNICION_MAXIMA; 
+	}
+	
+	public void activarPuntosDobles() {
+	    puntosDobles = true;
+	    tiempoPuntosDobles = 10.0f; 
 	}
 	
 	private void recargar() {
